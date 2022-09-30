@@ -4,12 +4,12 @@
 <!-- |    EDITING THIS FILE BY HAND IS NOT RECOMMENDED                                 | -->
 <!-- =================================================================================== -->
 <robot name="stoch3">
-  <link name="world">
+  <!-- <link name="world">
       </link>
   <joint name="world_joint" type="floating">
     <parent link="world"/>
     <child link="base_link"/>
-  </joint>
+  </joint> -->
   <link name="base_link">
     <inertial>
       <origin rpy="0 0 0" xyz="-0.00066643 -4.8401E-05 0.068162"/>
@@ -19,7 +19,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="/home/swapnil/FoR_Project/project_ws/pybullet/stoch3/meshes/base_link.STL"/>
+        <mesh filename="/home/swapnil/FoR_Project/project_ws/stoch3/meshes/base_link.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.75294 0.75294 0.75294 1"/>
@@ -28,7 +28,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="/home/swapnil/FoR_Project/project_ws/pybullet/stoch3/meshes/base_link.STL"/>
+        <mesh filename="/home/swapnil/FoR_Project/project_ws/stoch3/meshes/base_link.STL"/>
       </geometry>
     </collision>
   </link>
@@ -41,7 +41,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="/home/swapnil/FoR_Project/project_ws/pybullet/stoch3/meshes/fl_abd_link.STL"/>
+        <mesh filename="/home/swapnil/FoR_Project/project_ws/stoch3/meshes/fl_abd_link.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.79216 0.81961 0.93333 1"/>
@@ -50,7 +50,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="/home/swapnil/FoR_Project/project_ws/pybullet/stoch3/meshes/fl_abd_link.STL"/>
+        <mesh filename="/home/swapnil/FoR_Project/project_ws/stoch3/meshes/fl_abd_link.STL"/>
       </geometry>
     </collision>
   </link>
@@ -70,7 +70,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="/home/swapnil/FoR_Project/project_ws/pybullet/stoch3/meshes/fl_thigh_link.STL"/>
+        <mesh filename="/home/swapnil/FoR_Project/project_ws/stoch3/meshes/fl_thigh_link.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.75294 0.75294 0.75294 1"/>
@@ -79,7 +79,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="/home/swapnil/FoR_Project/project_ws/pybullet/stoch3/meshes/fl_thigh_link.STL"/>
+        <mesh filename="/home/swapnil/FoR_Project/project_ws/stoch3/meshes/fl_thigh_link.STL"/>
       </geometry>
     </collision>
   </link>
@@ -99,7 +99,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="/home/swapnil/FoR_Project/project_ws/pybullet/stoch3/meshes/fl_shank_link.STL"/>
+        <mesh filename="/home/swapnil/FoR_Project/project_ws/stoch3/meshes/fl_shank_link.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.79216 0.81961 0.93333 1"/>
@@ -108,7 +108,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="/home/swapnil/FoR_Project/project_ws/pybullet/stoch3/meshes/fl_shank_link.STL"/>
+        <mesh filename="/home/swapnil/FoR_Project/project_ws/stoch3/meshes/fl_shank_link.STL"/>
       </geometry>
     </collision>
   </link>
@@ -128,7 +128,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="/home/swapnil/FoR_Project/project_ws/pybullet/stoch3/meshes/fr_abd_link.STL"/>
+        <mesh filename="/home/swapnil/FoR_Project/project_ws/stoch3/meshes/fr_abd_link.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.79216 0.81961 0.93333 1"/>
@@ -137,7 +137,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="/home/swapnil/FoR_Project/project_ws/pybullet/stoch3/meshes/fr_abd_link.STL"/>
+        <mesh filename="/home/swapnil/FoR_Project/project_ws/stoch3/meshes/fr_abd_link.STL"/>
       </geometry>
     </collision>
   </link>
@@ -157,7 +157,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="/home/swapnil/FoR_Project/project_ws/pybullet/stoch3/meshes/fr_thigh_link.STL"/>
+        <mesh filename="/home/swapnil/FoR_Project/project_ws/stoch3/meshes/fr_thigh_link.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
@@ -166,7 +166,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="/home/swapnil/FoR_Project/project_ws/pybullet/stoch3/meshes/fr_thigh_link.STL"/>
+        <mesh filename="/home/swapnil/FoR_Project/project_ws/stoch3/meshes/fr_thigh_link.STL"/>
       </geometry>
     </collision>
   </link>
@@ -186,7 +186,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="/home/swapnil/FoR_Project/project_ws/pybullet/stoch3/meshes/fr_shank_link.STL"/>
+        <mesh filename="/home/swapnil/FoR_Project/project_ws/stoch3/meshes/fr_shank_link.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.79216 0.81961 0.93333 1"/>
@@ -195,7 +195,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="/home/swapnil/FoR_Project/project_ws/pybullet/stoch3/meshes/fr_shank_link.STL"/>
+        <mesh filename="/home/swapnil/FoR_Project/project_ws/stoch3/meshes/fr_shank_link.STL"/>
       </geometry>
     </collision>
   </link>
@@ -215,7 +215,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="/home/swapnil/FoR_Project/project_ws/pybullet/stoch3/meshes/bl_abd_link.STL"/>
+        <mesh filename="/home/swapnil/FoR_Project/project_ws/stoch3/meshes/bl_abd_link.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.79216 0.81961 0.93333 1"/>
@@ -224,7 +224,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="/home/swapnil/FoR_Project/project_ws/pybullet/stoch3/meshes/bl_abd_link.STL"/>
+        <mesh filename="/home/swapnil/FoR_Project/project_ws/stoch3/meshes/bl_abd_link.STL"/>
       </geometry>
     </collision>
   </link>
@@ -244,7 +244,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="/home/swapnil/FoR_Project/project_ws/pybullet/stoch3/meshes/bl_thigh_link.STL"/>
+        <mesh filename="/home/swapnil/FoR_Project/project_ws/stoch3/meshes/bl_thigh_link.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
@@ -253,7 +253,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="/home/swapnil/FoR_Project/project_ws/pybullet/stoch3/meshes/bl_thigh_link.STL"/>
+        <mesh filename="/home/swapnil/FoR_Project/project_ws/stoch3/meshes/bl_thigh_link.STL"/>
       </geometry>
     </collision>
   </link>
@@ -273,7 +273,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="/home/swapnil/FoR_Project/project_ws/pybullet/stoch3/meshes/bl_shank_link.STL"/>
+        <mesh filename="/home/swapnil/FoR_Project/project_ws/stoch3/meshes/bl_shank_link.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.79216 0.81961 0.93333 1"/>
@@ -282,7 +282,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="/home/swapnil/FoR_Project/project_ws/pybullet/stoch3/meshes/bl_shank_link.STL"/>
+        <mesh filename="/home/swapnil/FoR_Project/project_ws/stoch3/meshes/bl_shank_link.STL"/>
       </geometry>
     </collision>
   </link>
@@ -302,7 +302,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="/home/swapnil/FoR_Project/project_ws/pybullet/stoch3/meshes/br_abd_link.STL"/>
+        <mesh filename="/home/swapnil/FoR_Project/project_ws/stoch3/meshes/br_abd_link.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.79216 0.81961 0.93333 1"/>
@@ -311,7 +311,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="/home/swapnil/FoR_Project/project_ws/pybullet/stoch3/meshes/br_abd_link.STL"/>
+        <mesh filename="/home/swapnil/FoR_Project/project_ws/stoch3/meshes/br_abd_link.STL"/>
       </geometry>
     </collision>
   </link>
@@ -331,7 +331,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="/home/swapnil/FoR_Project/project_ws/pybullet/stoch3/meshes/br_thigh_link.STL"/>
+        <mesh filename="/home/swapnil/FoR_Project/project_ws/stoch3/meshes/br_thigh_link.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
@@ -340,7 +340,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="/home/swapnil/FoR_Project/project_ws/pybullet/stoch3/meshes/br_thigh_link.STL"/>
+        <mesh filename="/home/swapnil/FoR_Project/project_ws/stoch3/meshes/br_thigh_link.STL"/>
       </geometry>
     </collision>
   </link>
@@ -360,7 +360,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="/home/swapnil/FoR_Project/project_ws/pybullet/stoch3/meshes/br_shank_link.STL"/>
+        <mesh filename="/home/swapnil/FoR_Project/project_ws/stoch3/meshes/br_shank_link.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.79216 0.81961 0.93333 1"/>
@@ -369,7 +369,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="/home/swapnil/FoR_Project/project_ws/pybullet/stoch3/meshes/br_shank_link.STL"/>
+        <mesh filename="/home/swapnil/FoR_Project/project_ws/stoch3/meshes/br_shank_link.STL"/>
       </geometry>
     </collision>
   </link>
@@ -380,7 +380,7 @@
     <axis xyz="0 1 0"/>
     <limit effort="100" lower="-3.14159" upper="0" velocity="100"/>
   </joint>
-  <link name="fl_foot_link"/>
+<!--   <link name="fl_foot_link"/>
   <joint name="fl_ankle_joint" type="fixed">
     <parent link="fl_shank_link"/>
     <child link="fl_foot_link"/>
@@ -403,7 +403,7 @@
     <parent link="br_shank_link"/>
     <child link="br_foot_link"/>
     <origin rpy="0 0 0" xyz="0 0 -0.3"/>
-  </joint>
+  </joint> -->
   <transmission name="fl_abd_trans">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="fl_abd_joint">
