@@ -4,6 +4,7 @@ import math
 import pybullet as pb
 import sys
 import pybullet_data
+import common_paths
 
 def degree2Radians(degree):
     return math.pi*degree/180

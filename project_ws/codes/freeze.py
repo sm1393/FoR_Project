@@ -3,13 +3,14 @@ import time
 import pybullet_data
 import os
 import math
+import common_paths
 
 def d2r(degree):
     return math.pi*degree/180
 
 physicsClient = pb.connect(pb.GUI)
 pb.setAdditionalSearchPath(pybullet_data.getDataPath())
-stock = "/home/swapnil/FoR_Project/project_ws/pybullet/stoch3/urdf/stoch3_1.urdf"
+stock = common_paths.stochUrdfFile
 
 print("#################################################################################################")
 

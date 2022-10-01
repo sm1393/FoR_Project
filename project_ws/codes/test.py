@@ -4,13 +4,14 @@ import pybullet_data
 import os
 import math
 import lib_stoch as stoch
+import common_paths
 
 def d2r(degree):
     return math.pi*degree/180
 
 physicsClient = pb.connect(pb.GUI)
 pb.setAdditionalSearchPath(pybullet_data.getDataPath())
-stochUrdf = "/home/swapnil/FoR_Project/project_ws/stoch3/urdf/stoch3.urdf"
+stochUrdf = common_paths.stochUrdfFile
 
 print("#################################################################################################")
 
