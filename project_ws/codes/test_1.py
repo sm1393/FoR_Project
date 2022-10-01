@@ -1,8 +1,10 @@
+from re import S
 import pybullet as pb
 import time
 import pybullet_data
 import os
 import math
+import numpy as np
 import lib_stoch as stoch
 import common_paths
 
@@ -40,8 +42,7 @@ pb.setJointMotorControlArray(bodyUniqueId=stochID,
                                                     d2r(0),   #8
                                                     d2r(0),   #9 
                                                     d2r(0),   #10 
-                                                    d2r(0)])  #11
-                                                    
+                                                    d2r(0)])  #11                                                    
 time.sleep(1)
 
 while True:
@@ -63,6 +64,7 @@ while True:
                                                     d2r(0),   #9 
                                                     d2r(60*j),   #10 
                                                     d2r(-120*j)])  #11
+        print("base Tf Velocity = ", stoch.baseTfPosition(stochID))
         time.sleep(5*1/240)
 
     for i in range(1,step_size):
@@ -82,6 +84,7 @@ while True:
                                                     d2r(0),   #9 
                                                     d2r(60*j),   #10 
                                                     d2r(-120*j)])  #11
+        print("base Tf Velocity = ", stoch.baseTfPosition(stochID))
         time.sleep(5*1/240)
 
 print("#################################################################################################")

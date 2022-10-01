@@ -1,9 +1,10 @@
+import pybullet_data
+import pybullet as pb
 import time
 import os
 import math
-import pybullet as pb
+import numpy as np
 import sys
-import pybullet_data
 import common_paths
 
 def degree2Radians(degree):
@@ -23,10 +24,13 @@ def printJointInfo(stochID):
 def jointInfo(stochID, jointID):
     return pb.getJointInfo(stochID,jointID)
 
-def baseTfInfo(stochID):
+def baseTfPosition(stochID):
     position, orientation = pb.getBasePositionAndOrientation(stochID)
     orientation = pb.getEulerFromQuaternion(orientation)
     return [position, orientation]
+
+def baseTfVelocity(stochID):
+    return pb.getBasePositionAndOrientation(stochID)
 
 def jointStatesRadians(stochID):
     jointStates = pb.getJointStates(stochID,[0,1,2,3,4,5,6,7,8,9,10,11])
@@ -63,3 +67,52 @@ def jointTorques(stochID):
         jointTorque = jointState[3]
         jointArray.append(jointTorque)
     return jointArray
+
+def JointAngleControl_FL(stockID, angles):
+    pb.setJointMotorControlArray(bodyUniqueId=stockID,
+                                jointIndices=[0,1,2],
+                                controlMode= pb.POSITION_CONTROL,
+                                targetPositions = [ degree2Radians(angles[0]),
+                                                    degree2Radians(angles[1]),
+                                                    degree2Radians(angles[2]) ])
+
+def JointAngleControl_FR(stockID, angles):
+    pb.setJointMotorControlArray(bodyUniqueId=stockID,
+                                    jointIndices=[3,4,5],
+                                    controlMode= pb.POSITION_CONTROL,
+                                    targetPositions = [ degree2Radians(angles[0]),
+                                                        degree2Radians(angles[1]),
+                                                        degree2Radians(angles[2]) ])
+def JointAngleControl_BL(stockID, angles):
+    pb.setJointMotorControlArray(bodyUniqueId=stockID,
+                                    jointIndices=[6,7,8],
+                                    controlMode= pb.POSITION_CONTROL,
+                                    targetPositions = [ degree2Radians(angles[0]),
+                                                        degree2Radians(angles[1]),
+                                                        degree2Radians(angles[2]) ])
+
+def JointAngleControl_BR(stockID, angles):
+    pb.setJointMotorControlArray(bodyUniqueId=stockID,
+                                    jointIndices=[9,10,11],
+                                    controlMode= pb.POSITION_CONTROL,
+                                    targetPositions = [ degree2Radians(angles[0]),
+                                                        degree2Radians(angles[1]),
+                                                        degree2Radians(angles[2]) ])
+
+def JointAngleControl(stockID, angles):
+    JointAngleControl_FL(stockID, [angles[0], angles[1], angles[2]])
+    JointAngleControl_FR(stockID, [angles[3], angles[4], angles[5]])
+    JointAngleControl_BL(stockID, [angles[6], angles[7], angles[8]])
+    JointAngleControl_BR(stockID, [angles[9], angles[10], angles[11]])
+
+
+# def JointVelocityControl_FL(stockID, angles, velocities):
+#     pb.setJointMotorControlArray(bodyUniqueId=stockID,
+#                                 jointIndices=[0,1,2],
+#                                 controlMode= pb.VELOCITY_CONTROL,
+#                                 targetPositions = [ degree2Radians(angles[0]),
+#                                                         degree2Radians(angles[1]),
+#                                                         degree2Radians(angles[2]) ],
+#                                 targetVelocities = [ degree2Radians(velocities[0]),
+#                                                     degree2Radians(velocities[1]),
+#                                                     degree2Radians(velocities[2]) ])
