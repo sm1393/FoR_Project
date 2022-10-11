@@ -7,12 +7,15 @@ import numpy as np
 import sys
 import common_paths
 
+jointArray = np.arange(0, 12, 1)
+
 def degree2Radians(degree):
     return math.pi*degree/180
 
 def radian2Degree(radians):
     return 180*radians/(math.pi)
 
+# Print all joint info: joint ID, joint Name, joint Type, Lower limit, Upper limit
 def printJointInfo(stochID):
     joints = pb.getNumJoints(stochID)
     print("ID   Name                Type        Lower limit     Upper limit")
@@ -21,19 +24,23 @@ def printJointInfo(stochID):
         print(jointinfo[0]," ", jointinfo[1],"      ", jointinfo[2], "      ", jointinfo[8],"       ", jointinfo[9])
     print("\n")
 
+# Returns complete joint information for given joint ID
 def jointInfo(stochID, jointID):
     return pb.getJointInfo(stochID,jointID)
 
+# Return base_link location in world frame
 def baseTfPosition(stochID):
     position, orientation = pb.getBasePositionAndOrientation(stochID)
     orientation = pb.getEulerFromQuaternion(orientation)
     return [position, orientation]
 
+# Returns base_link velocity in world frame
 def baseTfVelocity(stochID):
     return pb.getBasePositionAndOrientation(stochID)
 
+# Returns all joint angles in terms of radians
 def jointStatesRadians(stochID):
-    jointStates = pb.getJointStates(stochID,[0,1,2,3,4,5,6,7,8,9,10,11])
+    jointStates = pb.getJointStates(stochID, jointArray)
     jointArray = []
     for i in range(len(jointStates)):
         joint = jointStates[i]
@@ -41,8 +48,9 @@ def jointStatesRadians(stochID):
         jointArray.append(jointAngle)
     return jointArray
 
+# Returns all joint angles in terms of degrees
 def jointStatesDegree(stochID):
-    jointStates = pb.getJointStates(stochID,[0,1,2,3,4,5,6,7,8,9,10,11])
+    jointStates = pb.getJointStates(stochID, jointArray)
     jointArray = []
     for i in range(len(jointStates)):
         joint = jointStates[i]
@@ -50,8 +58,9 @@ def jointStatesDegree(stochID):
         jointArray.append(jointAngle)
     return jointArray
 
+# Returns all joint angular velocities
 def jointVelocities(stochID):
-    jointStates = pb.getJointStates(stochID,[0,1,2,3,4,5,6,7,8,9,10,11])
+    jointStates = pb.getJointStates(stochID, jointArray)
     jointArray = []
     for i in range(len(jointStates)):
         jointState = jointStates[i]
@@ -59,8 +68,9 @@ def jointVelocities(stochID):
         jointArray.append(jointVelocities)
     return jointArray
 
+# Return all joint torques
 def jointTorques(stochID):
-    jointStates = pb.getJointStates(stochID,[0,1,2,3,4,5,6,7,8,9,10,11])
+    jointStates = pb.getJointStates(stochID, jointArray)
     jointArray = []
     for i in range(len(jointStates)):
         jointState = jointStates[i]
@@ -68,51 +78,35 @@ def jointTorques(stochID):
         jointArray.append(jointTorque)
     return jointArray
 
-def JointAngleControl_FL(stockID, angles):
+# Joint Position control for any leg
+def leg_control(stockID, leg_joint_array, joint_angle_array, enablePrint):
     pb.setJointMotorControlArray(bodyUniqueId=stockID,
-                                jointIndices=[0,1,2],
+                                jointIndices = leg_joint_array,
                                 controlMode= pb.POSITION_CONTROL,
-                                targetPositions = [ degree2Radians(angles[0]),
-                                                    degree2Radians(angles[1]),
-                                                    degree2Radians(angles[2]) ])
+                                targetPositions = [ degree2Radians(joint_angle_array[0]),
+                                                    degree2Radians(joint_angle_array[1]),
+                                                    degree2Radians(joint_angle_array[2]) ])
+    if enablePrint:
+        print("Angles written: "    "ID("+ str(leg_joint_array[0]) + ")=" + str(joint_angle_array[0]) + ", " 
+                                    "ID("+ str(leg_joint_array[1]) + ")=" + str(joint_angle_array[1]) + ", " 
+                                    "ID("+ str(leg_joint_array[2]) + ")=" + str(joint_angle_array[2]))
 
-def JointAngleControl_FR(stockID, angles):
-    pb.setJointMotorControlArray(bodyUniqueId=stockID,
-                                    jointIndices=[3,4,5],
-                                    controlMode= pb.POSITION_CONTROL,
-                                    targetPositions = [ degree2Radians(angles[0]),
-                                                        degree2Radians(angles[1]),
-                                                        degree2Radians(angles[2]) ])
-def JointAngleControl_BL(stockID, angles):
-    pb.setJointMotorControlArray(bodyUniqueId=stockID,
-                                    jointIndices=[6,7,8],
-                                    controlMode= pb.POSITION_CONTROL,
-                                    targetPositions = [ degree2Radians(angles[0]),
-                                                        degree2Radians(angles[1]),
-                                                        degree2Radians(angles[2]) ])
+# joint Position control individual leg
+def JointAngleControl_FL(stockID, angles, enablePrint):
+    leg_control(stockID, [0,1,2], angles, enablePrint)
+    
+def JointAngleControl_FR(stockID, angles, enablePrint):
+    leg_control(stockID, [3,4,5], angles, enablePrint)
 
-def JointAngleControl_BR(stockID, angles):
-    pb.setJointMotorControlArray(bodyUniqueId=stockID,
-                                    jointIndices=[9,10,11],
-                                    controlMode= pb.POSITION_CONTROL,
-                                    targetPositions = [ degree2Radians(angles[0]),
-                                                        degree2Radians(angles[1]),
-                                                        degree2Radians(angles[2]) ])
+def JointAngleControl_BL(stockID, angles, enablePrint):
+    leg_control(stockID, [6,7,8], angles, enablePrint)
 
-def JointAngleControl(stockID, angles):
-    JointAngleControl_FL(stockID, [angles[0], angles[1], angles[2]])
-    JointAngleControl_FR(stockID, [angles[3], angles[4], angles[5]])
-    JointAngleControl_BL(stockID, [angles[6], angles[7], angles[8]])
-    JointAngleControl_BR(stockID, [angles[9], angles[10], angles[11]])
+def JointAngleControl_BR(stockID, angles, enablePrint):
+    leg_control(stockID, [9,10,11], angles, enablePrint)
 
-
-# def JointVelocityControl_FL(stockID, angles, velocities):
-#     pb.setJointMotorControlArray(bodyUniqueId=stockID,
-#                                 jointIndices=[0,1,2],
-#                                 controlMode= pb.VELOCITY_CONTROL,
-#                                 targetPositions = [ degree2Radians(angles[0]),
-#                                                         degree2Radians(angles[1]),
-#                                                         degree2Radians(angles[2]) ],
-#                                 targetVelocities = [ degree2Radians(velocities[0]),
-#                                                     degree2Radians(velocities[1]),
-#                                                     degree2Radians(velocities[2]) ])
+# Joint control of all legs at same time
+def JointAngleControl(stockID, angles, enablePrint):
+    JointAngleControl_FL(stockID, angles[0:3], enablePrint)
+    JointAngleControl_FR(stockID, angles[3:6], enablePrint)
+    JointAngleControl_BL(stockID, angles[6:9], enablePrint)
+    JointAngleControl_BR(stockID, angles[9:12], enablePrint)

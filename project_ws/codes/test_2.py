@@ -22,10 +22,7 @@ planeId = pb.loadURDF("plane.urdf")
 stochID = pb.loadURDF(stochUrdf, [0,0,1])
 maxForce = 500
 
-joints = pb.getNumJoints(stochID)
-for i in range(joints):
-    joint = pb.getJointInfo(stochID,i)
-    print(i, "=", joint[0]," ", joint[1]," ", joint[2])
+stoch.printJointInfo(stochID)
 
 pb.setRealTimeSimulation(enableRealTimeSimulation = 1)
 
@@ -36,13 +33,13 @@ while True:
     for i in range(1,step_size):
         j = ( (i - 0) / (step_size - 0) ) * (1 - 0) + 0
         angles = [0, 60*j, -120*j, 0, 60*j, -120*j, 0, 60*j, -120*j, 0, 60*j, -120*j]
-        stoch.JointAngleControl(stochID, angles)
+        stoch.JointAngleControl(stochID, angles, enablePrint=1)
         time.sleep(5*1/240)
 
     for i in range(1,step_size):
         j = ( ((step_size-i) - 0) / (step_size - 0) ) * (1 - 0) + 0
         angles = [0, 60*j, -120*j, 0, 60*j, -120*j, 0, 60*j, -120*j, 0, 60*j, -120*j]
-        stoch.JointAngleControl(stochID, angles)
+        stoch.JointAngleControl(stochID, angles, enablePrint=1)
         time.sleep(5*1/240)
 
 print("#################################################################################################")
