@@ -1,0 +1,240 @@
+check_urdf stoch3.urdf
+robot name is: stoch3
+---------- Successfully Parsed XML ---------------
+root Link: base_link has 5 child(ren)
+    child(1):  bl_abd_link
+        child(1):  bl_thigh_link
+            child(1):  bl_shank_link
+    child(2):  br_abd_link
+        child(1):  br_thigh_link
+            child(1):  br_shank_link
+    child(3):  fl_abd_link
+        child(1):  fl_thigh_link
+            child(1):  fl_shank_link
+    child(4):  fr_abd_link
+        child(1):  fr_thigh_link
+            child(1):  fr_shank_link
+    child(5):  imu_link_1
+
+
+
+
+
+transforms: 
+  - 
+    header: 
+      seq: 0
+      stamp: 
+        secs: 1665723915
+        nsecs: 366505384
+      frame_id: "base_link"
+    child_frame_id: "bl_abd_link"
+    transform: 
+      translation: 
+        x: -0.299402452130055
+        y: 0.101499999999997
+        z: 0.0540300000000009
+      rotation: 
+        x: 0.0
+        y: 0.0
+        z: 0.0
+        w: 1.0
+  - 
+    header: 
+      seq: 0
+      stamp: 
+        secs: 1665723915
+        nsecs: 366505384
+      frame_id: "bl_abd_link"
+    child_frame_id: "bl_thigh_link"
+    transform: 
+      translation: 
+        x: 0.0286978530373435
+        y: 0.0139999999999997
+        z: 0.0
+      rotation: 
+        x: 0.0
+        y: -1.5729202106631965e-05
+        z: 0.0
+        w: 0.9999999998762961
+  - 
+    header: 
+      seq: 0
+      stamp: 
+        secs: 1665723915
+        nsecs: 366505384
+      frame_id: "bl_thigh_link"
+    child_frame_id: "bl_shank_link"
+    transform: 
+      translation: 
+        x: 0.0
+        y: 0.111599999999496
+        z: -0.29699999985304
+      rotation: 
+        x: 0.0
+        y: 1.5729202104072266e-05
+        z: 0.0
+        w: 0.9999999998762961
+  - 
+    header: 
+      seq: 0
+      stamp: 
+        secs: 1665723915
+        nsecs: 366505384
+      frame_id: "base_link"
+    child_frame_id: "br_abd_link"
+    transform: 
+      translation: 
+        x: -0.299402452130055
+        y: -0.101500000000005
+        z: 0.0540300000000005
+      rotation: 
+        x: 0.0
+        y: 0.0
+        z: 0.0
+        w: 1.0
+  - 
+    header: 
+      seq: 0
+      stamp: 
+        secs: 1665723915
+        nsecs: 366505384
+      frame_id: "br_abd_link"
+    child_frame_id: "br_thigh_link"
+    transform: 
+      translation: 
+        x: 0.0286978530373517
+        y: -0.0139999999999956
+        z: 0.0
+      rotation: 
+        x: 0.0
+        y: 1.5729202109407516e-05
+        z: 0.0
+        w: 0.9999999998762961
+  - 
+    header: 
+      seq: 0
+      stamp: 
+        secs: 1665723915
+        nsecs: 366505384
+      frame_id: "br_thigh_link"
+    child_frame_id: "br_shank_link"
+    transform: 
+      translation: 
+        x: 0.0
+        y: -0.111600000000005
+        z: -0.296999999853014
+      rotation: 
+        x: 0.0
+        y: -1.5729202106416118e-05
+        z: 0.0
+        w: 0.9999999998762961
+  - 
+    header: 
+      seq: 0
+      stamp: 
+        secs: 1665723915
+        nsecs: 366505384
+      frame_id: "base_link"
+    child_frame_id: "fl_abd_link"
+    transform: 
+      translation: 
+        x: 0.206917503877324
+        y: 0.101500000000002
+        z: 0.0540300000000024
+      rotation: 
+        x: 0.0
+        y: 0.0
+        z: 0.0
+        w: 1.0
+  - 
+    header: 
+      seq: 0
+      stamp: 
+        secs: 1665723915
+        nsecs: 366505384
+      frame_id: "fl_abd_link"
+    child_frame_id: "fl_thigh_link"
+    transform: 
+      translation: 
+        x: 0.06378709521538
+        y: 0.0139999999999987
+        z: 0.0
+      rotation: 
+        x: 0.0
+        y: -1.5729202106631965e-05
+        z: 0.0
+        w: 0.9999999998762961
+  - 
+    header: 
+      seq: 0
+      stamp: 
+        secs: 1665723915
+        nsecs: 366505384
+      frame_id: "fl_thigh_link"
+    child_frame_id: "fl_shank_link"
+    transform: 
+      translation: 
+        x: 0.0
+        y: 0.111399999999998
+        z: -0.296999999853041
+      rotation: 
+        x: 0.0
+        y: 1.5729202106847816e-05
+        z: 0.0
+        w: 0.9999999998762961
+  - 
+    header: 
+      seq: 0
+      stamp: 
+        secs: 1665723915
+        nsecs: 366505384
+      frame_id: "base_link"
+    child_frame_id: "fr_abd_link"
+    transform: 
+      translation: 
+        x: 0.206925357517166
+        y: -0.101499999999999
+        z: 0.0540300000000003
+      rotation: 
+        x: 0.0
+        y: 0.0
+        z: 0.0
+        w: 1.0
+  - 
+    header: 
+      seq: 0
+      stamp: 
+        secs: 1665723915
+        nsecs: 366505384
+      frame_id: "fr_abd_link"
+    child_frame_id: "fr_thigh_link"
+    transform: 
+      translation: 
+        x: 0.06377924157554
+        y: -0.0139999999999988
+        z: 0.0
+      rotation: 
+        x: 0.0
+        y: 1.5729202103856418e-05
+        z: 0.0
+        w: 0.9999999998762961
+  - 
+    header: 
+      seq: 0
+      stamp: 
+        secs: 1665723915
+        nsecs: 366505384
+      frame_id: "fr_thigh_link"
+    child_frame_id: "fr_shank_link"
+    transform: 
+      translation: 
+        x: 0.0
+        y: -0.111599999999999
+        z: -0.29699999985303
+      rotation: 
+        x: 0.0
+        y: -1.5729202103640567e-05
+        z: 0.0
+        w: 0.9999999998762961
+---

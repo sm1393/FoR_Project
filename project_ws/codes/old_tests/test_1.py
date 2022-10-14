@@ -28,22 +28,22 @@ for i in range(joints):
     print(i, "=", joint[0]," ", joint[1]," ", joint[2])
 
 pb.setRealTimeSimulation(enableRealTimeSimulation = 1)
-pb.setJointMotorControlArray(bodyUniqueId=stochID,
-                                jointIndices=[0,1,2,3,4,5,6,7,8,9,10,11],
-                                controlMode= pb.POSITION_CONTROL,
-                                targetPositions = [ d2r(0),   #0 
-                                                    d2r(0),   #1 
-                                                    d2r(0),   #2
-                                                    d2r(0),   #3 
-                                                    d2r(0),   #4 
-                                                    d2r(0),   #5
-                                                    d2r(0),   #6 
-                                                    d2r(0),   #7 
-                                                    d2r(0),   #8
-                                                    d2r(0),   #9 
-                                                    d2r(0),   #10 
-                                                    d2r(0)])  #11                                                    
-time.sleep(1)
+# pb.setJointMotorControlArray(bodyUniqueId=stochID,
+#                                 jointIndices=[0,1,2,3,4,5,6,7,8,9,10,11],
+#                                 controlMode= pb.POSITION_CONTROL,
+#                                 targetPositions = [ d2r(0),   #0 
+#                                                     d2r(0),   #1 
+#                                                     d2r(0),   #2
+#                                                     d2r(0),   #3 
+#                                                     d2r(0),   #4 
+#                                                     d2r(0),   #5
+#                                                     d2r(0),   #6 
+#                                                     d2r(0),   #7 
+#                                                     d2r(0),   #8
+#                                                     d2r(0),   #9 
+#                                                     d2r(0),   #10 
+#                                                     d2r(0)])  #11                                                    
+time.sleep(10)
 
 while True:
     step_size = 100

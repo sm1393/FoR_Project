@@ -1,4 +1,3 @@
-from re import S
 import pybullet as pb
 import time
 import pybullet_data
@@ -26,20 +25,20 @@ stoch.printJointInfo(stochID)
 
 pb.setRealTimeSimulation(enableRealTimeSimulation = 1)
 
-time.sleep(1)
+# time.sleep(1)
 
 while True:
-    step_size = 100
+    step_size = 1000
     for i in range(1,step_size):
         j = ( (i - 0) / (step_size - 0) ) * (1 - 0) + 0
         angles = [0, 60*j, -120*j, 0, 60*j, -120*j, 0, 60*j, -120*j, 0, 60*j, -120*j]
-        stoch.JointAngleControl(stochID, angles, enablePrint=1)
-        time.sleep(5*1/240)
+        stoch.JointAngleControl(stochID, angles, enablePrint=0)
+        time.sleep(1/240)
 
     for i in range(1,step_size):
         j = ( ((step_size-i) - 0) / (step_size - 0) ) * (1 - 0) + 0
         angles = [0, 60*j, -120*j, 0, 60*j, -120*j, 0, 60*j, -120*j, 0, 60*j, -120*j]
-        stoch.JointAngleControl(stochID, angles, enablePrint=1)
-        time.sleep(5*1/240)
+        stoch.JointAngleControl(stochID, angles, enablePrint=0)
+        time.sleep(1/240)
 
 print("#################################################################################################")

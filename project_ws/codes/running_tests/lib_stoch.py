@@ -7,13 +7,20 @@ import numpy as np
 import sys
 import common_paths
 
-jointArray = np.arange(0, 12, 1)
+############################################################################################################################
+
+jointArray = [0,1,2,4,5,6,8,9,10,12,13,14]
+linkArray = np.arange(0, 18, 1)
+
+############################################################################################################################
 
 def degree2Radians(degree):
     return math.pi*degree/180
 
 def radian2Degree(radians):
     return 180*radians/(math.pi)
+
+############################################################################################################################
 
 # Print all joint info: joint ID, joint Name, joint Type, Lower limit, Upper limit
 def printJointInfo(stochID):
@@ -78,6 +85,8 @@ def jointTorques(stochID):
         jointArray.append(jointTorque)
     return jointArray
 
+############################################################################################################################
+
 # Joint Position control for any leg
 def leg_control(stockID, leg_joint_array, joint_angle_array, enablePrint):
     pb.setJointMotorControlArray(bodyUniqueId=stockID,
@@ -93,16 +102,16 @@ def leg_control(stockID, leg_joint_array, joint_angle_array, enablePrint):
 
 # joint Position control individual leg
 def JointAngleControl_FL(stockID, angles, enablePrint):
-    leg_control(stockID, [0,1,2], angles, enablePrint)
+    leg_control(stockID, jointArray[0:3], angles, enablePrint)
     
 def JointAngleControl_FR(stockID, angles, enablePrint):
-    leg_control(stockID, [3,4,5], angles, enablePrint)
+    leg_control(stockID, jointArray[3:6], angles, enablePrint)
 
 def JointAngleControl_BL(stockID, angles, enablePrint):
-    leg_control(stockID, [6,7,8], angles, enablePrint)
+    leg_control(stockID, jointArray[6:9], angles, enablePrint)
 
 def JointAngleControl_BR(stockID, angles, enablePrint):
-    leg_control(stockID, [9,10,11], angles, enablePrint)
+    leg_control(stockID, jointArray[9:12], angles, enablePrint)
 
 # Joint control of all legs at same time
 def JointAngleControl(stockID, angles, enablePrint):
@@ -110,3 +119,10 @@ def JointAngleControl(stockID, angles, enablePrint):
     JointAngleControl_FR(stockID, angles[3:6], enablePrint)
     JointAngleControl_BL(stockID, angles[6:9], enablePrint)
     JointAngleControl_BR(stockID, angles[9:12], enablePrint)
+
+############################################################################################################################
+
+def getLinkInfo(stockID):
+    linkPositions, linkOrientations = [],[]
+    links = pb.getLinkStates(stockID,linkArray)
+    print("links = ", np.round(links[16][0], 3), np.round(links[16][1], 3))
