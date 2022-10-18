@@ -24,20 +24,29 @@ pb.setRealTimeSimulation(enableRealTimeSimulation = 1)
 
 # time.sleep(1)
 
-while True:
-    step_size = 1000
-    for i in range(1,step_size):
-        j = ( (i - 0) / (step_size - 0) ) * (1 - 0) + 0
-        angles = [0, 60*j, -120*j, 0, 60*j, -120*j, 0, 60*j, -120*j, 0, 60*j, -120*j]
-        stoch.JointAngleControl(stochID, angles, enablePrint=0)
-        stoch.getLinkInfo(stochID)
-        time.sleep(1/240)
+def temp(angles):
+    observed = stoch.getObservedFootCoordinates(stochID)
+    print("observed = ", observed[0])
+    # angles = [0, 0, -90, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    # stoch.JointAngleControl(stochID, angles, enablePrint=0)
+    stoch.JointAngleControl_FL(stochID, angles, enablePrint=1)
+    time.sleep(1)
+    calculated = stoch.getCalculatedFootCoordinates(stochID, angles)
+    observed = stoch.getObservedFootCoordinates(stochID)
+    print("observed = ", observed[0], "calculated = ", calculated)
+    print("#################################################################Error:", np.round(calculated - observed[0], 4))
 
-    for i in range(1,step_size):
-        j = ( ((step_size-i) - 0) / (step_size - 0) ) * (1 - 0) + 0
-        angles = [0, 60*j, -120*j, 0, 60*j, -120*j, 0, 60*j, -120*j, 0, 60*j, -120*j]
-        stoch.JointAngleControl(stochID, angles, enablePrint=0)
-        stoch.getLinkInfo(stochID)
-        time.sleep(1/240)
+print("#################################################################################################")
+
+angles = np.array([0,90,0])
+temp(angles)
+time.sleep(1)
+angles = np.array([0,90,-90])
+temp(angles)
+time.sleep(1)
+angles = np.array([0,0,0])
+temp(angles)
+time.sleep(1)
+
 
 print("#################################################################################################")
