@@ -238,6 +238,15 @@ def inverseKinmematics(endPositionInHipFrame):
 # Foot trajectory
 
 def generatePointMatrices(xCentral, zCentral, upperWidth, lowerWidth, centralWidth, liftHeight, groundHeight, depth):
+    pointInWorkspace = False
+    if depth + groundHeight <= 0.6111:
+        if centralWidth <=  (0.6111)**2 - depth**2:
+            if depth > liftHeight:
+                pointInWorkspace = True
+    if pointInWorkspace == False:
+        print("Trajectory points out of workspace!!!!")
+        exit()
+            
     liftPointMatrix = np.array([[xCentral - centralWidth/2 ,zCentral - depth],
                             [xCentral - upperWidth/2 ,zCentral - depth + liftHeight],
                             [xCentral + upperWidth/2, zCentral - depth + liftHeight],
