@@ -1,3 +1,6 @@
+from operator import le
+from random import randrange
+from re import L
 import pybullet_data
 import pybullet as pb
 import time
@@ -7,15 +10,46 @@ import numpy as np
 import sys
 import common_paths
 
-# jointArray = np.arange(0, 16, 1)
-jointArray = [0,1,2,4,5,6,8,9,10,12,13,14]
-linkArray = np.arange(0, 13, 1)
+############################################################################################################################
+
+# jointArray = [0,1,2,4,5,6,8,9,10,12,13,14] # for free stoch
+jointArray = [1,2,3,5,6,7,9,10,11,13,14,15] # for fixed stoch
+linkArray = np.arange(0, 18, 1)
+
+# Leg link lengths
+# L1 = 0.29691 #thigh
+# L2 = 0.3 #shank
+L1 = 0.29701 #thigh
+L2 = 0.2999 #shank
+
+# Offsets
+#X_SHIFT = 0.27318
+X_SHIFT = 0.27138
+Y_SHIFT = 0.22695
+Z_SHIFT = 0.01422
+
+# Shift of leg frames with respect to body frame
+FL_SHIFT = np.array([X_SHIFT, Y_SHIFT, -Z_SHIFT])
+FR_SHIFT = np.array([X_SHIFT, -Y_SHIFT, -Z_SHIFT])
+BL_SHIFT = np.array([-X_SHIFT, Y_SHIFT, -Z_SHIFT])
+BR_SHIFT = np.array([-X_SHIFT, -Y_SHIFT, -Z_SHIFT])
+
+############################################################################################################################
 
 def degree2Radians(degree):
     return math.pi*degree/180
 
 def radian2Degree(radians):
     return 180*radians/(math.pi)
+
+def limitValue(value):
+    if value < -1:
+        return -1
+    elif value > 1:
+        return 1
+    else:
+        return value
+############################################################################################################################
 
 # Print all joint info: joint ID, joint Name, joint Type, Lower limit, Upper limit
 def printJointInfo(stochID):
@@ -29,16 +63,6 @@ def printJointInfo(stochID):
 # Returns complete joint information for given joint ID
 def jointInfo(stochID, jointID):
     return pb.getJointInfo(stochID,jointID)
-
-# def getLinkInfo(stockID):
-#     linkPositions, linkOrientations = [],[]
-#     links = pb.getLinkStates(stockID,linkArray)
-#     for i in range(len(links)):
-#         linkPositions.append(links[i][0])
-#         linkOrientations.append(pb.getEulerFromQuaternion(links[i][1]))
-#     np.set_printoptions(precision=3)
-#     linkID = 11
-#     print("link0 = ", np.round(linkPositions[linkID], 3), np.round(linkOrientations[linkID], 3))
 
 # Return base_link location in world frame
 def baseTfPosition(stochID):
@@ -90,35 +114,112 @@ def jointTorques(stochID):
         jointArray.append(jointTorque)
     return jointArray
 
+############################################################################################################################
+
 # Joint Position control for any leg
-def leg_control(stockID, leg_joint_array, joint_angle_array, enablePrint):
-    pb.setJointMotorControlArray(bodyUniqueId=stockID,
+def leg_control(stochID, leg_joint_array, joint_angle_array, enablePrint):
+    joint_angle_array = -np.array(joint_angle_array)
+    pb.setJointMotorControlArray(bodyUniqueId=stochID,
                                 jointIndices = leg_joint_array,
                                 controlMode= pb.POSITION_CONTROL,
-                                targetPositions = [ degree2Radians(joint_angle_array[0]),
-                                                    degree2Radians(joint_angle_array[1]),
-                                                    degree2Radians(joint_angle_array[2]) ])
+                                targetPositions = [ joint_angle_array[0],
+                                                    joint_angle_array[1],
+                                                    joint_angle_array[2] ])
     if enablePrint:
         print("Angles written: "    "ID("+ str(leg_joint_array[0]) + ")=" + str(joint_angle_array[0]) + ", " 
                                     "ID("+ str(leg_joint_array[1]) + ")=" + str(joint_angle_array[1]) + ", " 
                                     "ID("+ str(leg_joint_array[2]) + ")=" + str(joint_angle_array[2]))
 
 # joint Position control individual leg
-def JointAngleControl_FL(stockID, angles, enablePrint):
-    leg_control(stockID, jointArray[0:3], angles, enablePrint)
+def JointAngleControl_FL(stochID, angles, enablePrint):
+    leg_control(stochID, jointArray[0:3], angles, enablePrint)
     
-def JointAngleControl_FR(stockID, angles, enablePrint):
-    leg_control(stockID, jointArray[3:6], angles, enablePrint)
+def JointAngleControl_FR(stochID, angles, enablePrint):
+    leg_control(stochID, jointArray[3:6], angles, enablePrint)
 
-def JointAngleControl_BL(stockID, angles, enablePrint):
-    leg_control(stockID, jointArray[6:9], angles, enablePrint)
+def JointAngleControl_BL(stochID, angles, enablePrint):
+    leg_control(stochID, jointArray[6:9], angles, enablePrint)
 
-def JointAngleControl_BR(stockID, angles, enablePrint):
-    leg_control(stockID, jointArray[9:12], angles, enablePrint)
+def JointAngleControl_BR(stochID, angles, enablePrint):
+    leg_control(stochID, jointArray[9:12], angles, enablePrint)
 
 # Joint control of all legs at same time
-def JointAngleControl(stockID, angles, enablePrint):
-    JointAngleControl_FL(stockID, angles[0:3], enablePrint)
-    JointAngleControl_FR(stockID, angles[3:6], enablePrint)
-    JointAngleControl_BL(stockID, angles[6:9], enablePrint)
-    JointAngleControl_BR(stockID, angles[9:12], enablePrint)
+def JointAngleControl(stochID, angles, enablePrint):
+    joint_angle_array = -joint_angle_array
+    pb.setJointMotorControlArray(bodyUniqueId=stochID,
+                                jointIndices = jointArray,
+                                controlMode= pb.POSITION_CONTROL,
+                                targetPositions = [ joint_angle_array[0],
+                                                    joint_angle_array[1],
+                                                    joint_angle_array[2],
+                                                    joint_angle_array[3],
+                                                    joint_angle_array[4],
+                                                    joint_angle_array[5],
+                                                    joint_angle_array[6],
+                                                    joint_angle_array[7],
+                                                    joint_angle_array[8],
+                                                    joint_angle_array[9], 
+                                                    joint_angle_array[10],
+                                                    joint_angle_array[11],])
+    if enablePrint:
+        print("Angles written: "    "ID("+ str(jointArray[0]) + ")=" + str(joint_angle_array[0]) + ", " 
+                                    "ID("+ str(jointArray[1]) + ")=" + str(joint_angle_array[1]) + ", " 
+                                    "ID("+ str(jointArray[2]) + ")=" + str(joint_angle_array[2]) + ", " 
+                                    "ID("+ str(jointArray[2]) + ")=" + str(joint_angle_array[3]) + ", " 
+                                    "ID("+ str(jointArray[2]) + ")=" + str(joint_angle_array[4]) + ", " 
+                                    "ID("+ str(jointArray[2]) + ")=" + str(joint_angle_array[5]) + ", " 
+                                    "ID("+ str(jointArray[2]) + ")=" + str(joint_angle_array[6]) + ", " 
+                                    "ID("+ str(jointArray[2]) + ")=" + str(joint_angle_array[7]) + ", " 
+                                    "ID("+ str(jointArray[2]) + ")=" + str(joint_angle_array[8]) + ", " 
+                                    "ID("+ str(jointArray[2]) + ")=" + str(joint_angle_array[9]) + ", " 
+                                    "ID("+ str(jointArray[2]) + ")=" + str(joint_angle_array[10]) + ", " 
+                                    "ID("+ str(jointArray[2]) + ")=" + str(joint_angle_array[11]))
+
+############################################################################################################################
+
+# Return foot coordinates with respect to body frame
+def getObservedFootCoordinates(stochID):
+    linkPositions, linkOrientations = [],[]
+    links = pb.getLinkStates(stochID,linkArray)
+    for i in range(len(links)):
+        linkPositions.append(np.array(links[i][0]))
+        linkOrientations.append(np.array(links[i][1]))
+    foot_coordinates = [np.round(linkPositions[4] - linkPositions[0], 5), # Front Left
+                        np.round(linkPositions[8] - linkPositions[0], 5), # Front Right
+                        np.round(linkPositions[12] - linkPositions[0], 5), # Back left
+                        np.round(linkPositions[16] - linkPositions[0], 5)] # Back Right
+    return foot_coordinates
+
+# Testing for front left leg
+def getCalculatedFootCoordinates(stochID, angles):
+    foot_in_leg_frame = forwardKinematics(angles)
+    print("foot_in_leg_frame", foot_in_leg_frame)
+    foot_in_body_frame = foot_in_leg_frame + FL_SHIFT
+    print("foot_in_body_frame", foot_in_body_frame)
+    return foot_in_leg_frame, foot_in_body_frame
+
+# Forward kinematics for 2 dof leg
+def forwardKinematics(angles):
+    theta1, theta2 = degree2Radians(angles[1]), degree2Radians(angles[2])
+    X = (L1*math.sin(theta1) + L2*math.sin(theta1+theta2))
+    Z = -(L1*math.cos(theta1) + L2*math.cos(theta1+theta2))
+    return np.array([X,0,Z])
+
+# Inverse kinematics for 2 dof leg
+def inverseKinmematics(endPositionInHipFrame):
+    abdJoint = 0
+    # print("endPositionInHipFrame = ", endPositionInHipFrame)
+    coskneeJoint = ((endPositionInHipFrame[0]**2 + endPositionInHipFrame[2]**2) - (L1**2 + L2**2))/ (2*L1*L2)
+    # print(limitValue(coskneeJoint))
+    kneeJoint = math.acos(limitValue(coskneeJoint))
+    determinant = L1**2 + L2**2 + 2*L1*L2*math.cos(kneeJoint)
+    sinHipJoint1 = (endPositionInHipFrame[0] * (L1 + L2*math.cos(kneeJoint)) + endPositionInHipFrame[2] * (L2*math.sin(kneeJoint)))/ determinant
+    cosHipJoint1 = (endPositionInHipFrame[0] * (L2*math.sin(kneeJoint)) - endPositionInHipFrame[2] * (L1 + L2*math.cos(kneeJoint)))/ determinant
+    sinHipJoint1 = limitValue(sinHipJoint1)
+    cosHipJoint1 = limitValue(cosHipJoint1)
+    # print("coskneeJoint = ", coskneeJoint, "sinHipJoint1 = ", sinHipJoint1, "cosHipJoint1 = ", cosHipJoint1)
+    # print("kneeJoint = ", kneeJoint, "HipJoint1 from sin = ", math.asin(sinHipJoint1), "HipJoint1 from cos = ", math.acos(cosHipJoint1))
+    # print("kneeJoint = ", radian2Degree(kneeJoint), "HipJoint1 from sin = ", radian2Degree(math.asin(sinHipJoint1)), "HipJoint1 from cos = ", radian2Degree(math.acos(cosHipJoint1)))
+    hipJoint = math.asin(sinHipJoint1)
+    # print("return = ", radian2Degree(abdJoint), radian2Degree(hipJoint), radian2Degree(kneeJoint))
+    return [radian2Degree(abdJoint), radian2Degree(hipJoint), radian2Degree(kneeJoint)]

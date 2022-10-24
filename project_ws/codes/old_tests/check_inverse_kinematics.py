@@ -24,29 +24,27 @@ pb.setRealTimeSimulation(enableRealTimeSimulation = 1)
 
 # time.sleep(1)
 
-def temp(angles):
+def checkFK(angles):
     observed = stoch.getObservedFootCoordinates(stochID)
     print("observed = ", observed[0])
-    # angles = [0, 0, -90, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    # stoch.JointAngleControl(stochID, angles, enablePrint=0)
     stoch.JointAngleControl_FL(stochID, angles, enablePrint=1)
-    time.sleep(1)
     calculated = stoch.getCalculatedFootCoordinates(stochID, angles)
     observed = stoch.getObservedFootCoordinates(stochID)
     print("observed = ", observed[0], "calculated = ", calculated)
     print("#################################################################Error:", np.round(calculated - observed[0], 4))
 
-print("#################################################################################################")
-
-angles = np.array([0,90,0])
-temp(angles)
-time.sleep(1)
-angles = np.array([0,90,-90])
-temp(angles)
-time.sleep(1)
-angles = np.array([0,0,0])
-temp(angles)
-time.sleep(1)
-
+def checkIK(endPosition):
+    angles = stoch.inverseKinmematics(endPosition)
+    stoch.JointAngleControl_FL(stochID, angles, enablePrint=1)
 
 print("#################################################################################################")
+
+time.sleep(1)
+print("first test")
+checkIK([-0.00814168, 0, -0.59679839 ]) # in hip frame
+time.sleep(1)
+input()
+
+print("#################################################################################################")
+
+pb.disconnect()

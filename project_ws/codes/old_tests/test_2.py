@@ -30,12 +30,14 @@ pb.setRealTimeSimulation(enableRealTimeSimulation = 1)
 while True:
     step_size = 1000
     for i in range(1,step_size):
+        print("for1", i)
         j = ( (i - 0) / (step_size - 0) ) * (1 - 0) + 0
         angles = [0, 60*j, -120*j, 0, 60*j, -120*j, 0, 60*j, -120*j, 0, 60*j, -120*j]
         stoch.JointAngleControl(stochID, angles, enablePrint=0)
         time.sleep(1/240)
 
     for i in range(1,step_size):
+        print("for2", i)
         j = ( ((step_size-i) - 0) / (step_size - 0) ) * (1 - 0) + 0
         angles = [0, 60*j, -120*j, 0, 60*j, -120*j, 0, 60*j, -120*j, 0, 60*j, -120*j]
         stoch.JointAngleControl(stochID, angles, enablePrint=0)
