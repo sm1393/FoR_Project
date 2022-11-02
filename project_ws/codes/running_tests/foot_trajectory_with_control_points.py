@@ -6,7 +6,7 @@ zCentral = 0
 upperWidth = 0.04
 lowerWidth = 0.02
 centralWidth = 0.05
-liftHeight = 0.09
+liftHeight = 0.15
 groundHeight = 0.025
 depth = 0.4
 

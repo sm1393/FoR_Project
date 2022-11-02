@@ -1,6 +1,7 @@
 from operator import le
 from random import randrange
 from re import L
+from turtle import width
 import pybullet_data
 import pybullet as pb
 import time
@@ -36,10 +37,19 @@ BL_SHIFT = np.array([-X_SHIFT, Y_SHIFT, -Z_SHIFT])
 BR_SHIFT = np.array([-X_SHIFT, -Y_SHIFT, -Z_SHIFT])
 
 # for cubic Bezier curve
-weightMatrix = np.array([[-1,3,-3,1],
+cubicWeightMatrix = np.array([[-1,3,-3,1],
                         [3,-6,3,0],
                         [-3,3,0,0],
                         [1,0,0,0]])
+# for quadratic Bezier curve
+quadraticWeightMatrix = np.array([[1, -2, 1],
+                                 [-2, 2, 0],
+                                 [1, 0, 0]])
+
+# for linear Bezier curve
+linearWeightMatrix = np.array([[-1, 1],
+                              [1, 0]])
+
 ############################################################################################################################
 # Required functions
 
@@ -56,6 +66,7 @@ def limitValue(value):
         return 1
     else:
         return value
+
 ############################################################################################################################
 # Get information from pybullet
 
@@ -256,13 +267,26 @@ def generatePointMatrices(xCentral, zCentral, upperWidth, lowerWidth, centralWid
                                 [xCentral + lowerWidth/2 ,zCentral - depth - groundHeight],
                                 [xCentral - lowerWidth/2 , zCentral - depth - groundHeight],
                                 [xCentral - centralWidth/2 ,zCentral - depth]]).T
-    return liftPointMatrix, groundPointMatrix
 
-def getPointFromAngle(angle, liftPointMatrix, groundPointMatrix):
+    transitionLiftPointMatrix = np.array([[xCentral, zCentral - depth],
+                                         [xCentral + centralWidth/4, zCentral - depth + centralWidth/4],
+                                         [xCentral + centralWidth/2, zCentral - depth]]).T
+
+    transitionGroundPointMatrix = np.array([[xCentral , zCentral - depth],
+                                           [xCentral - centralWidth/2, zCentral - depth]]).T
+
+    return liftPointMatrix, groundPointMatrix, transitionLiftPointMatrix, transitionGroundPointMatrix
+
+def getPointForTrajectory(angle, liftPointMatrix, groundPointMatrix):
     if angle == 360: angle = 0
     if int(angle) in range(0,180):
         t = angle/180
-        return liftPointMatrix @ weightMatrix @ np.array([t**3, t**2, t, 1])
+        return liftPointMatrix @ cubicWeightMatrix @ np.array([t**3, t**2, t, 1])
     elif int(angle) in range(180,360):
         t = (angle - 180)/180
-        return groundPointMatrix @ weightMatrix @ np.array([t**3, t**2, t, 1])
+        return groundPointMatrix @ cubicWeightMatrix @ np.array([t**3, t**2, t, 1])
+    
+def getPointForTransition(t, transitionLiftPointMatrix, transitionGroundPointMatrix):
+    quadraticTrajectoryPoint = transitionLiftPointMatrix @ quadraticWeightMatrix @ np.array([t**2, t, 1])
+    linearTrajectoryPoint = transitionGroundPointMatrix @ linearWeightMatrix @ np.array([t, 1])
+    return quadraticTrajectoryPoint, linearTrajectoryPoint
