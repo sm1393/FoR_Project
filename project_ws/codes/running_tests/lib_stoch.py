@@ -164,23 +164,12 @@ def JointAngleControl_BR(stochID, angles, enablePrint):
     leg_control(stochID, jointArray[9:12], angles, enablePrint)
 
 # Joint control of all legs at same time
-def JointAngleControl(stochID, angles, enablePrint):
-    joint_angle_array = -joint_angle_array
+def JointAngleControl(stochID, jointAngles, enablePrint):
+    joint_angle_array = - np.array(jointAngles)
     pb.setJointMotorControlArray(bodyUniqueId=stochID,
                                 jointIndices = jointArray,
                                 controlMode= pb.POSITION_CONTROL,
-                                targetPositions = [ joint_angle_array[0],
-                                                    joint_angle_array[1],
-                                                    joint_angle_array[2],
-                                                    joint_angle_array[3],
-                                                    joint_angle_array[4],
-                                                    joint_angle_array[5],
-                                                    joint_angle_array[6],
-                                                    joint_angle_array[7],
-                                                    joint_angle_array[8],
-                                                    joint_angle_array[9], 
-                                                    joint_angle_array[10],
-                                                    joint_angle_array[11],])
+                                targetPositions = joint_angle_array)
     if enablePrint:
         print("Angles written: "    "ID("+ str(jointArray[0]) + ")=" + str(joint_angle_array[0]) + ", " 
                                     "ID("+ str(jointArray[1]) + ")=" + str(joint_angle_array[1]) + ", " 
@@ -229,26 +218,39 @@ def forwardKinematics(angles):
 # Inverse kinematics for 2 dof leg
 def inverseKinmematics(endPositionInHipFrame):
     abdJoint = 0
-    # print("endPositionInHipFrame = ", endPositionInHipFrame)
     coskneeJoint = ((endPositionInHipFrame[0]**2 + endPositionInHipFrame[2]**2) - (L1**2 + L2**2))/ (2*L1*L2)
-    # print(limitValue(coskneeJoint))
     kneeJoint = math.acos(limitValue(coskneeJoint))
     determinant = L1**2 + L2**2 + 2*L1*L2*math.cos(kneeJoint)
     sinHipJoint1 = (endPositionInHipFrame[0] * (L1 + L2*math.cos(kneeJoint)) + endPositionInHipFrame[2] * (L2*math.sin(kneeJoint)))/ determinant
     cosHipJoint1 = (endPositionInHipFrame[0] * (L2*math.sin(kneeJoint)) - endPositionInHipFrame[2] * (L1 + L2*math.cos(kneeJoint)))/ determinant
     sinHipJoint1 = limitValue(sinHipJoint1)
     cosHipJoint1 = limitValue(cosHipJoint1)
-    # print("coskneeJoint = ", coskneeJoint, "sinHipJoint1 = ", sinHipJoint1, "cosHipJoint1 = ", cosHipJoint1)
-    # print("kneeJoint = ", kneeJoint, "HipJoint1 from sin = ", math.asin(sinHipJoint1), "HipJoint1 from cos = ", math.acos(cosHipJoint1))
-    # print("kneeJoint = ", radian2Degree(kneeJoint), "HipJoint1 from sin = ", radian2Degree(math.asin(sinHipJoint1)), "HipJoint1 from cos = ", radian2Degree(math.acos(cosHipJoint1)))
     hipJoint = math.asin(sinHipJoint1)
-    # print("return = ", radian2Degree(abdJoint), radian2Degree(hipJoint), radian2Degree(kneeJoint))
-    return [radian2Degree(abdJoint), radian2Degree(hipJoint), radian2Degree(kneeJoint)]
+    return [abdJoint, hipJoint, kneeJoint]
 
 ############################################################################################################################
 # Foot trajectory
 
-def generatePointMatrices(xCentral, zCentral, upperWidth, lowerWidth, centralWidth, liftHeight, groundHeight, depth):
+def generateTransitionPointMatrices(xCentral, zCentral, upperWidth, lowerWidth, centralWidth, liftHeight, groundHeight, depth):
+    pointInWorkspace = False
+    if depth + groundHeight <= 0.6111:
+        if centralWidth <=  (0.6111)**2 - depth**2:
+            if depth > liftHeight:
+                pointInWorkspace = True
+    if pointInWorkspace == False:
+        print("Trajectory points out of workspace!!!!")
+        exit()
+
+    transitionLiftPointMatrix = np.array([[xCentral, zCentral - depth],
+                                         [xCentral + centralWidth/4, zCentral - depth + centralWidth/4],
+                                         [xCentral + centralWidth/2, zCentral - depth]]).T
+
+    transitionGroundPointMatrix = np.array([[xCentral , zCentral - depth],
+                                           [xCentral - centralWidth/2, zCentral - depth]]).T
+
+    return transitionLiftPointMatrix, transitionGroundPointMatrix
+
+def generateWalkPointMatrices(xCentral, zCentral, upperWidth, lowerWidth, centralWidth, liftHeight, groundHeight, depth):
     pointInWorkspace = False
     if depth + groundHeight <= 0.6111:
         if centralWidth <=  (0.6111)**2 - depth**2:
@@ -268,14 +270,8 @@ def generatePointMatrices(xCentral, zCentral, upperWidth, lowerWidth, centralWid
                                 [xCentral - lowerWidth/2 , zCentral - depth - groundHeight],
                                 [xCentral - centralWidth/2 ,zCentral - depth]]).T
 
-    transitionLiftPointMatrix = np.array([[xCentral, zCentral - depth],
-                                         [xCentral + centralWidth/4, zCentral - depth + centralWidth/4],
-                                         [xCentral + centralWidth/2, zCentral - depth]]).T
+    return liftPointMatrix, groundPointMatrix
 
-    transitionGroundPointMatrix = np.array([[xCentral , zCentral - depth],
-                                           [xCentral - centralWidth/2, zCentral - depth]]).T
-
-    return liftPointMatrix, groundPointMatrix, transitionLiftPointMatrix, transitionGroundPointMatrix
 
 def getPointForTrajectory(angle, liftPointMatrix, groundPointMatrix):
     if angle == 360: angle = 0
@@ -290,3 +286,38 @@ def getPointForTransition(t, transitionLiftPointMatrix, transitionGroundPointMat
     quadraticTrajectoryPoint = transitionLiftPointMatrix @ quadraticWeightMatrix @ np.array([t**2, t, 1])
     linearTrajectoryPoint = transitionGroundPointMatrix @ linearWeightMatrix @ np.array([t, 1])
     return quadraticTrajectoryPoint, linearTrajectoryPoint
+
+############################################################################################################################
+# Crawl
+
+def takePosition(stochID, transitionLiftPointMatrix, transitionGroundPointMatrix):
+    quadraticTrajectoryPoint, linearTrajectoryPoint = getPointForTransition(0, transitionLiftPointMatrix, transitionGroundPointMatrix)
+    jointAnglesPhase = inverseKinmematics([quadraticTrajectoryPoint[0], 0, quadraticTrajectoryPoint[1]])
+    # Get 
+    for i in range(1000):
+        i = i/1000
+        _jointAnglesPhase = [i*jointAnglesPhase[0], i*jointAnglesPhase[1], i*jointAnglesPhase[2]] 
+        _jointAngles =  _jointAnglesPhase + _jointAnglesPhase + _jointAnglesPhase + _jointAnglesPhase
+        JointAngleControl(stochID, _jointAngles, enablePrint=0)
+
+    time.sleep(1)
+    # Set
+    for i in range(750):
+        i = i/750
+        quadraticTrajectoryPoint, linearTrajectoryPoint = getPointForTransition(i, transitionLiftPointMatrix, transitionGroundPointMatrix)
+        jointAnglesPhase0 = inverseKinmematics([quadraticTrajectoryPoint[0], 0, quadraticTrajectoryPoint[1]])
+        jointAnglesPhase180 = inverseKinmematics([linearTrajectoryPoint[0], 0, linearTrajectoryPoint[1]])
+        _jointAngles =  jointAnglesPhase0 + jointAnglesPhase180 + jointAnglesPhase180 + jointAnglesPhase0
+        JointAngleControl(stochID, _jointAngles, enablePrint=0)
+
+
+def trot(stochID, i, liftPointMatrix, groundPointMatrix):
+    if i in range(0,180): j = i + 180
+    elif i in range(180, 360): j = i - 180
+    phase0 = getPointForTrajectory(i, liftPointMatrix, groundPointMatrix)
+    phase180 = getPointForTrajectory(j, liftPointMatrix, groundPointMatrix)
+    jointAnglesPhase0 = inverseKinmematics([phase0[0], 0, phase0[1]])
+    jointAnglesPhase180 = inverseKinmematics([phase180[0], 0, phase180[1]])
+    _jointAngles =  jointAnglesPhase0 + jointAnglesPhase180 + jointAnglesPhase180 + jointAnglesPhase0
+    JointAngleControl(stochID, _jointAngles, enablePrint=0)
+    time.sleep(0.0001)

@@ -8,6 +8,8 @@ groundPointMatrix = np.array([[1,0], [0.5,-0.25], [-0.5,-0.25], [-1,0]]).T
 transitionLiftPointMatrix = np.array([[0,0], [1,1], [2,0]]).T
 transitionGroundPointMatrix = np.array([[0,0], [-2,0]]).T
 
+points = np.array([[-1,0], [-0.5,1], [0.5,1], [1,0], [0.5,-0.25], [-0.5,-0.25]])
+
 weightMatrix = np.array([[-1,3,-3,1],
                         [3,-6,3,0],
                         [-3,3,0,0],
@@ -67,6 +69,9 @@ print("pointArrayX = ", pointArrayX.shape)
 print("pointArrayY = ", pointArrayY.shape)
 
 plt.plot(pointArrayX, pointArrayY, 'red')
+#################################################################################
+plt.scatter(points[:,0], points[:,1], c = "black")
+plt.savefig('/home/swapnil/FoR_Project/project_ws/data/bezier_curve.png')
 plt.show()
 
 transitionLiftArray = np.array(transitionLiftArray)
@@ -79,6 +84,9 @@ print("transitionLiftArrayX = ", transitionLiftArrayX.shape)
 print("transitionLiftArrayY = ", transitionLiftArrayY.shape)
 
 plt.plot(transitionLiftArrayX, transitionLiftArrayY, 'red')
+#################################################################################
+# /home/swapnil/FoR_Project/project_ws/data
+plt.savefig('/home/swapnil/FoR_Project/project_ws/data/transition_lift.png')
 plt.show()
 
 transitionGroundArray = np.array(transitionGroundArray)
@@ -91,4 +99,7 @@ print("transitionGroundArrayX = ", transitionGroundArrayX.shape)
 print("transitionGroundArrayY = ", transitionGroundArrayY.shape)
 
 plt.plot(transitionGroundArrayX, transitionGroundArrayY, 'red')
+#################################################################################
+# /home/swapnil/FoR_Project/project_ws/data
+plt.savefig('/home/swapnil/FoR_Project/project_ws/data/transition_ground.png')
 plt.show()
