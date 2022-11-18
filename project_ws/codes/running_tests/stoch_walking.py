@@ -17,10 +17,11 @@ print("#########################################################################
 pb.setGravity(0,0,-10)
 planeId = pb.loadURDF("plane.urdf")
 stochID = pb.loadURDF(stochUrdf, [0,0,0.6])
+# stochID = pb.loadURDF(stochUrdf, [0,0,0.6], pb.getQuaternionFromEuler([0,0,math.pi/2]))
 
 stoch.printJointInfo(stochID)
 
-pb.setRealTimeSimulation(enableRealTimeSimulation = 1)
+pb.setRealTimeSimulation(enableRealTimeSimulation = 0)
 
 ########################################################################################################
 
@@ -28,9 +29,9 @@ xCentral = 0
 zCentral = 0
 upperWidth = 0.04
 lowerWidth = 0.02
-centralWidth = 0.05
+centralWidth = 0.2
 liftHeight = 0.09
-groundHeight = 0.025
+groundHeight = 0 #0.025
 depth = 0.4
 
 transitionLiftPointMatrix, transitionGroundPointMatrix = stoch.generateTransitionPointMatrices(xCentral, zCentral, upperWidth, lowerWidth, centralWidth, liftHeight, groundHeight, depth)
@@ -41,8 +42,10 @@ time.sleep(1)
 stoch.takePosition(stochID, transitionLiftPointMatrix, transitionGroundPointMatrix)
 
 while True:
-    for i in range(360):
-        stoch.trot(stochID, i, liftPointMatrix, groundPointMatrix)
+    for i in range(180):
+        print(stoch.bodyTwist(stochID))
+        stoch.trot(stochID, 2*i, liftPointMatrix, groundPointMatrix)
+        # input()
 
 time.sleep(1)
 

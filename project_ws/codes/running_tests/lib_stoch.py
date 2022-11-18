@@ -83,15 +83,34 @@ def printJointInfo(stochID):
 def jointInfo(stochID, jointID):
     return pb.getJointInfo(stochID,jointID)
 
-# Return base_link location in world frame
-def baseTfPosition(stochID):
-    position, orientation = pb.getBasePositionAndOrientation(stochID)
-    orientation = pb.getEulerFromQuaternion(orientation)
-    return [position, orientation]
+def quaternionsToRotation(q):
+    return 2*np.array([ [q[0]**2 + q[1]**2 -0.5,  q[1]*q[2] - q[0]*q[3],    q[0]*q[2] + q[1]*q[3]],
+                        [q[1]*q[2] + q[0]*q[3],   q[0]**2 + q[2]**2 -0.5,   q[2]*q[3] - q[0]*q[1]],
+                        [q[1]*q[3] - q[0]*q[2],   q[2]*q[3] + q[0]*q[1],    q[0]**2 + q[3]**2 -0.5]])
+def eulerToRotation(e):
+    phi = 0
+    theta = 1
+    psi = 2
+    return np.array([  [math.cos(e[psi])*math.cos(e[theta]),
+                        math.cos(e[psi])*math.sin(e[theta])*math.sin(e[phi]) - math.sin(e[psi])*math.cos(e[phi]),
+                                math.cos(e[psi])*math.sin(e[theta])*math.cos(e[phi]) + math.sin(e[psi])*math.sin(e[phi])],
+                [math.sin(e[psi])*math.cos(e[theta]),
+                        math.sin(e[psi])*math.sin(e[theta])*math.sin(e[phi]) + math.cos(e[psi])*math.cos(e[phi]),
+                                math.sin(e[psi])*math.sin(e[theta])*math.cos(e[phi]) - math.cos(e[psi])*math.sin(e[phi])],
+                [-math.sin(e[theta]),
+                        math.cos(e[theta])*math.sin(e[phi]),
+                                math.cos(e[theta])*math.cos(e[phi])]])
 
-# Returns base_link velocity in world frame
-def baseTfVelocity(stochID):
-    return pb.getBasePositionAndOrientation(stochID)
+def bodyTwist(stochID):
+    position, orientation = pb.getBasePositionAndOrientation(stochID)
+    eulerAngles = pb.getEulerFromQuaternion(orientation)
+    rotation = eulerToRotation(eulerAngles)
+    velocity = pb.getBaseVelocity(stochID)
+    pHat = np.array([   [0      , -position[2], position[1]],
+                        [position[2],      0,  -position[0]],
+                        [-position[1], position[0], 0]])
+    bodyVelocity =  rotation.T @ np.array(velocity[0]) - rotation.T @ pHat @ np.array(velocity[1])
+    return bodyVelocity
 
 # Returns all joint angles in terms of radians
 def jointStatesRadians(stochID):
@@ -170,19 +189,22 @@ def JointAngleControl(stochID, jointAngles, enablePrint):
                                 jointIndices = jointArray,
                                 controlMode= pb.POSITION_CONTROL,
                                 targetPositions = joint_angle_array)
+    pb.stepSimulation()
     if enablePrint:
-        print("Angles written: "    "ID("+ str(jointArray[0]) + ")=" + str(joint_angle_array[0]) + ", " 
-                                    "ID("+ str(jointArray[1]) + ")=" + str(joint_angle_array[1]) + ", " 
-                                    "ID("+ str(jointArray[2]) + ")=" + str(joint_angle_array[2]) + ", " 
-                                    "ID("+ str(jointArray[2]) + ")=" + str(joint_angle_array[3]) + ", " 
-                                    "ID("+ str(jointArray[2]) + ")=" + str(joint_angle_array[4]) + ", " 
-                                    "ID("+ str(jointArray[2]) + ")=" + str(joint_angle_array[5]) + ", " 
-                                    "ID("+ str(jointArray[2]) + ")=" + str(joint_angle_array[6]) + ", " 
-                                    "ID("+ str(jointArray[2]) + ")=" + str(joint_angle_array[7]) + ", " 
-                                    "ID("+ str(jointArray[2]) + ")=" + str(joint_angle_array[8]) + ", " 
-                                    "ID("+ str(jointArray[2]) + ")=" + str(joint_angle_array[9]) + ", " 
-                                    "ID("+ str(jointArray[2]) + ")=" + str(joint_angle_array[10]) + ", " 
-                                    "ID("+ str(jointArray[2]) + ")=" + str(joint_angle_array[11]))
+        print(  
+                "ID("+ str(jointArray[0]) + ")=" + str(np.round(joint_angle_array[0], 2)) + ", " 
+                "ID("+ str(jointArray[1]) + ")=" + str(np.round(joint_angle_array[1], 2)) + ", " 
+                "ID("+ str(jointArray[2]) + ")=" + str(np.round(joint_angle_array[2], 2)) + ", " 
+                "ID("+ str(jointArray[3]) + ")=" + str(np.round(joint_angle_array[3], 2)) + ", " 
+                "ID("+ str(jointArray[4]) + ")=" + str(np.round(joint_angle_array[4], 2)) + ", " 
+                "ID("+ str(jointArray[5]) + ")=" + str(np.round(joint_angle_array[5], 2)) + ", " 
+                "ID("+ str(jointArray[6]) + ")=" + str(np.round(joint_angle_array[6], 2)) + ", " 
+                "ID("+ str(jointArray[7]) + ")=" + str(np.round(joint_angle_array[7], 2)) + ", " 
+                "ID("+ str(jointArray[8]) + ")=" + str(np.round(joint_angle_array[8], 2)) + ", " 
+                "ID("+ str(jointArray[9]) + ")=" + str(np.round(joint_angle_array[9], 2)) + ", " 
+                "ID("+ str(jointArray[10]) + ")=" + str(np.round(joint_angle_array[10], 2)) + ", " 
+                "ID("+ str(jointArray[11]) + ")=" + str(np.round(joint_angle_array[11], 2))
+                )
 
 ############################################################################################################################
 # Kinematics
@@ -202,11 +224,9 @@ def getObservedFootCoordinates(stochID):
 
 # Testing for front left leg
 def getCalculatedFootCoordinates(stochID, angles):
-    foot_in_leg_frame = forwardKinematics(angles)
-    print("foot_in_leg_frame", foot_in_leg_frame)
-    foot_in_body_frame = foot_in_leg_frame + FL_SHIFT
-    print("foot_in_body_frame", foot_in_body_frame)
-    return foot_in_leg_frame, foot_in_body_frame
+    foot_in_hip_frame = forwardKinematics(angles)
+    foot_in_body_frame = foot_in_hip_frame + FL_SHIFT
+    return foot_in_hip_frame, foot_in_body_frame
 
 # Forward kinematics for 2 dof leg
 def forwardKinematics(angles):
@@ -234,7 +254,7 @@ def inverseKinmematics(endPositionInHipFrame):
 def generateTransitionPointMatrices(xCentral, zCentral, upperWidth, lowerWidth, centralWidth, liftHeight, groundHeight, depth):
     pointInWorkspace = False
     if depth + groundHeight <= 0.6111:
-        if centralWidth <=  (0.6111)**2 - depth**2:
+        if centralWidth <=  2*math.sqrt((0.6111)**2 - depth**2):
             if depth > liftHeight:
                 pointInWorkspace = True
     if pointInWorkspace == False:
@@ -253,7 +273,7 @@ def generateTransitionPointMatrices(xCentral, zCentral, upperWidth, lowerWidth, 
 def generateWalkPointMatrices(xCentral, zCentral, upperWidth, lowerWidth, centralWidth, liftHeight, groundHeight, depth):
     pointInWorkspace = False
     if depth + groundHeight <= 0.6111:
-        if centralWidth <=  (0.6111)**2 - depth**2:
+        if centralWidth <=  np.sqrt((0.6111)**2 - depth**2):
             if depth > liftHeight:
                 pointInWorkspace = True
     if pointInWorkspace == False:
@@ -294,20 +314,21 @@ def takePosition(stochID, transitionLiftPointMatrix, transitionGroundPointMatrix
     quadraticTrajectoryPoint, linearTrajectoryPoint = getPointForTransition(0, transitionLiftPointMatrix, transitionGroundPointMatrix)
     jointAnglesPhase = inverseKinmematics([quadraticTrajectoryPoint[0], 0, quadraticTrajectoryPoint[1]])
     # Get 
-    for i in range(1000):
-        i = i/1000
+    for i in range(100):
+        i = i/100
         _jointAnglesPhase = [i*jointAnglesPhase[0], i*jointAnglesPhase[1], i*jointAnglesPhase[2]] 
         _jointAngles =  _jointAnglesPhase + _jointAnglesPhase + _jointAnglesPhase + _jointAnglesPhase
         JointAngleControl(stochID, _jointAngles, enablePrint=0)
 
-    time.sleep(1)
+    # time.sleep(1)
     # Set
-    for i in range(750):
-        i = i/750
+    for i in range(100):
+        i = i/100
         quadraticTrajectoryPoint, linearTrajectoryPoint = getPointForTransition(i, transitionLiftPointMatrix, transitionGroundPointMatrix)
-        jointAnglesPhase0 = inverseKinmematics([quadraticTrajectoryPoint[0], 0, quadraticTrajectoryPoint[1]])
-        jointAnglesPhase180 = inverseKinmematics([linearTrajectoryPoint[0], 0, linearTrajectoryPoint[1]])
+        jointAnglesPhase180 = inverseKinmematics([quadraticTrajectoryPoint[0], 0, quadraticTrajectoryPoint[1]])
+        jointAnglesPhase0 = inverseKinmematics([linearTrajectoryPoint[0], 0, linearTrajectoryPoint[1]])
         _jointAngles =  jointAnglesPhase0 + jointAnglesPhase180 + jointAnglesPhase180 + jointAnglesPhase0
+        #                   FL                      FR                      BL                  BR
         JointAngleControl(stochID, _jointAngles, enablePrint=0)
 
 
@@ -319,5 +340,5 @@ def trot(stochID, i, liftPointMatrix, groundPointMatrix):
     jointAnglesPhase0 = inverseKinmematics([phase0[0], 0, phase0[1]])
     jointAnglesPhase180 = inverseKinmematics([phase180[0], 0, phase180[1]])
     _jointAngles =  jointAnglesPhase0 + jointAnglesPhase180 + jointAnglesPhase180 + jointAnglesPhase0
+    #                   FL                      FR                      BL                  BR
     JointAngleControl(stochID, _jointAngles, enablePrint=0)
-    time.sleep(0.0001)

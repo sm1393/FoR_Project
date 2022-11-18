@@ -11,7 +11,7 @@ groundHeight = 0.025
 depth = 0.4
 
 if depth + groundHeight <= 0.6111:
-    if centralWidth <=  (0.6111)**2 - depth**2:
+    if centralWidth <=  ((0.6111)**2 - depth**2):
         print("point in workspace")
     else:
         print("out of workspace")
