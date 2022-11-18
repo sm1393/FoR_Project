@@ -310,7 +310,7 @@ def getPointForTransition(t, transitionLiftPointMatrix, transitionGroundPointMat
 ############################################################################################################################
 # Crawl
 
-def takePosition(stochID, transitionLiftPointMatrix, transitionGroundPointMatrix):
+def takePosition(stochID, transitionLiftPointMatrix, transitionGroundPointMatrix, transition2):
     quadraticTrajectoryPoint, linearTrajectoryPoint = getPointForTransition(0, transitionLiftPointMatrix, transitionGroundPointMatrix)
     jointAnglesPhase = inverseKinmematics([quadraticTrajectoryPoint[0], 0, quadraticTrajectoryPoint[1]])
     # Get 
@@ -322,14 +322,15 @@ def takePosition(stochID, transitionLiftPointMatrix, transitionGroundPointMatrix
 
     # time.sleep(1)
     # Set
-    for i in range(100):
-        i = i/100
-        quadraticTrajectoryPoint, linearTrajectoryPoint = getPointForTransition(i, transitionLiftPointMatrix, transitionGroundPointMatrix)
-        jointAnglesPhase180 = inverseKinmematics([quadraticTrajectoryPoint[0], 0, quadraticTrajectoryPoint[1]])
-        jointAnglesPhase0 = inverseKinmematics([linearTrajectoryPoint[0], 0, linearTrajectoryPoint[1]])
-        _jointAngles =  jointAnglesPhase0 + jointAnglesPhase180 + jointAnglesPhase180 + jointAnglesPhase0
-        #                   FL                      FR                      BL                  BR
-        JointAngleControl(stochID, _jointAngles, enablePrint=0)
+    if transition2:
+        for i in range(100):
+            i = i/100
+            quadraticTrajectoryPoint, linearTrajectoryPoint = getPointForTransition(i, transitionLiftPointMatrix, transitionGroundPointMatrix)
+            jointAnglesPhase180 = inverseKinmematics([quadraticTrajectoryPoint[0], 0, quadraticTrajectoryPoint[1]])
+            jointAnglesPhase0 = inverseKinmematics([linearTrajectoryPoint[0], 0, linearTrajectoryPoint[1]])
+            _jointAngles =  jointAnglesPhase0 + jointAnglesPhase180 + jointAnglesPhase180 + jointAnglesPhase0
+            #                   FL                      FR                      BL                  BR
+            JointAngleControl(stochID, _jointAngles, enablePrint=0)
 
 
 def trot(stochID, i, liftPointMatrix, groundPointMatrix):
