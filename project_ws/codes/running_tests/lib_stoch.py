@@ -1,7 +1,3 @@
-from operator import le
-from random import randrange
-from re import L
-from turtle import width
 import pybullet_data
 import pybullet as pb
 import time

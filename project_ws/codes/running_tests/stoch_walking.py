@@ -39,7 +39,7 @@ liftPointMatrix, groundPointMatrix = stoch.generateWalkPointMatrices(xCentral, z
 
 time.sleep(1)
 
-stoch.takePosition(stochID, transitionLiftPointMatrix, transitionGroundPointMatrix)
+stoch.takePosition(stochID, transitionLiftPointMatrix, transitionGroundPointMatrix, transition2 = True)
 
 while True:
     for i in range(180):
