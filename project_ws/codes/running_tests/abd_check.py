@@ -4,26 +4,26 @@ import pybullet_data
 import os
 import math
 import numpy as np
-import lib_stoch as stoch
+import lib_stoch_3D as stoch
 import common_paths
 
 physicsClient = pb.connect(pb.GUI)
-# physicsClient = pb.connect(pb.DIRECT)
+physicsClient = pb.connect(pb.DIRECT)
 pb.setAdditionalSearchPath(pybullet_data.getDataPath())
 stochUrdf = common_paths.stochUrdfFile
 
-print("#################################################################################################")
 
 pb.setGravity(0,0,-10)
 planeId = pb.loadURDF("plane.urdf")
-stochID = pb.loadURDF(stochUrdf, [0,0,0.6])
+stochID = pb.loadURDF(stochUrdf, [0,0,1])
 # stochID = pb.loadURDF(stochUrdf, [0,0,0.6], pb.getQuaternionFromEuler([0,0,math.pi/2]))
 
-stoch.printJointInfo(stochID)
+# stoch.printJointInfo(stochID)
 
-pb.setRealTimeSimulation(enableRealTimeSimulation = 0)
+pb.setRealTimeSimulation(enableRealTimeSimulation = 1)
+# pb.setRealTimeSimulation(enableRealTimeSimulation = 0)
 
-########################################################################################################
+print("#################################################################################################")
 
 xCentral = 0
 zCentral = 0
@@ -37,19 +37,19 @@ depth = 0.4
 transitionLiftPointMatrix, transitionGroundPointMatrix = stoch.generateTransitionPointMatrices(xCentral, zCentral, upperWidth, lowerWidth, centralWidth, liftHeight, groundHeight, depth)
 liftPointMatrix, groundPointMatrix = stoch.generateWalkPointMatrices(xCentral, zCentral, upperWidth, lowerWidth, centralWidth, liftHeight, groundHeight, depth)
 
+input()
+angles = [-45,45,-45]   # knee joint only takes negative angles
+stoch.JointAngleControl_FR(stochID, stoch.degree2Radians(np.array(angles)), enablePrint = 0) # requires degrees
 time.sleep(1)
-
-stoch.takePosition(stochID, transitionLiftPointMatrix, transitionGroundPointMatrix, transition2 = True)
-
-while True:
-    for i in range(180):
-        basePos, baseOrn = pb.getBasePositionAndOrientation(stochID)
-        pb.resetDebugVisualizerCamera(cameraDistance = 3, cameraYaw = 30, cameraPitch = -30, cameraTargetPosition = basePos)
-        stoch.trot(stochID, 2*i, liftPointMatrix, groundPointMatrix)
-
-time.sleep(1)
-
-########################################################################################################
+input()
+endCoords = stoch.getObservedFootCoordinates(stochID)
+jointAngles = stoch.inverseKinmematics(endCoords) # Return angles in radians
+print(  "endCoords = ", endCoords,
+        "\nangles given = ", angles,
+        "\tjointAngles = ", stoch.radian2Degree(np.array(jointAngles)))
+input()
+stoch.JointAngleControl_FR(stochID, jointAngles, enablePrint = 0)
+input()
 
 print("#################################################################################################")
 
