@@ -346,3 +346,69 @@ def trot(stochID, tilt, i, liftPointMatrix, groundPointMatrix):
     _jointAngles =  jointAnglesFL + jointAnglesFR + jointAnglesBL + jointAnglesBR
     #                   FL              FR                 BL             BR
     JointAngleControl(stochID, _jointAngles, enablePrint=0)
+
+def spot(stochID, direction, i, liftPointMatrix, groundPointMatrix): # direction: 0 = left, 1 = right
+    if i in range(0,180): j = i + 180
+    elif i in range(180, 360): j = i - 180
+    phase0_F = getPointForTrajectory(i, - direction * math.pi + degree2Radians(135), liftPointMatrix, groundPointMatrix)
+    phase180_F = getPointForTrajectory(j, - direction * math.pi + degree2Radians(45), liftPointMatrix, groundPointMatrix)
+    phase0_B = getPointForTrajectory(i, direction * math.pi + degree2Radians(-45), liftPointMatrix, groundPointMatrix)
+    phase180_B = getPointForTrajectory(j, direction * math.pi + degree2Radians(-135), liftPointMatrix, groundPointMatrix)
+    jointAnglesFL = inverseKinmematics([phase0_F[0], phase0_F[1]-L_ABD, phase0_F[2]])
+    jointAnglesBR = inverseKinmematics([phase0_B[0], phase0_F[1]-L_ABD, phase0_B[2]])
+    jointAnglesBL = inverseKinmematics([phase180_B[0], phase0_F[1]-L_ABD, phase180_B[2]])
+    jointAnglesFR = inverseKinmematics([phase180_F[0], phase0_F[1]-L_ABD, phase180_F[2]])
+    _jointAngles =  jointAnglesFL + jointAnglesFR + jointAnglesBL + jointAnglesBR
+    #                   FL              FR                 BL             BR
+    JointAngleControl(stochID, _jointAngles, enablePrint=0)
+
+#############################################################################################################################3
+
+def orient(stochID, desiredOrientation, liftPointMatrix, groundPointMatrix):
+    LEASTROTATION = 0.18689822
+    steps = 0
+    orient = False
+    basePos, baseOrn = pb.getBasePositionAndOrientation(stochID)
+    numberOfSteps = np.round((desiredOrientation - pb.getEulerFromQuaternion(baseOrn)[2])/LEASTROTATION,0)
+    if desiredOrientation - pb.getEulerFromQuaternion(baseOrn)[2] > 0:
+        direction = 0
+    else: direction = 1
+    while True:
+        for i in range(360):
+            if i == 1 or i == 181: steps += 1
+            if steps > numberOfSteps:
+                orient = True
+                break
+            spot(stochID, direction, i, liftPointMatrix, groundPointMatrix)
+        if orient:
+            break
+
+def reachtarget(stochID, target, liftPointMatrix, groundPointMatrix):
+    Kp = 10
+    reached = False
+    basePos, baseOrn = pb.getBasePositionAndOrientation(stochID)
+    xInitial, yInitial = np.array(basePos)[0], np.array(basePos)[1]
+    xFinal, yFinal = target[0][0], target[0][1]
+    a = (yFinal - yInitial)/(xFinal - xInitial)
+    b = -1
+    c = yInitial - a*xInitial
+    line = target[0] - np.array(basePos)
+    intialOrientation = math.atan2(line[1],line[0])
+    orient(stochID, intialOrientation, liftPointMatrix, groundPointMatrix)
+    while True:
+        for i in range(180):
+            basePos, baseOrn = pb.getBasePositionAndOrientation(stochID)
+            pb.resetDebugVisualizerCamera(cameraDistance = 2, cameraYaw = 30, cameraPitch = -30, cameraTargetPosition = basePos)
+            basePosition = np.array(basePos)
+            distanceError = (a*basePosition[0] + b*basePosition[1] + c) / np.sqrt(a**2 + b**2)
+            tilt = Kp * distanceError
+            trot(stochID, tilt, i*2, liftPointMatrix, groundPointMatrix)
+            if np.linalg.norm(basePosition - target[0]) < 0.5:
+                reached = True
+                break
+        if reached == True:
+            break
+    orient(stochID, target[1], liftPointMatrix, groundPointMatrix)
+    basePos, baseOrn = pb.getBasePositionAndOrientation(stochID)
+    print("base = ", basePos, pb.getEulerFromQuaternion(baseOrn))
+    input()
