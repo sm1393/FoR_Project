@@ -4,11 +4,10 @@ import pybullet_data
 import os
 import math
 import numpy as np
-import lib_stoch as stoch
+import lib_stoch_3D as stoch
 import common_paths
 
 physicsClient = pb.connect(pb.GUI)
-# physicsClient = pb.connect(pb.DIRECT)
 pb.setAdditionalSearchPath(pybullet_data.getDataPath())
 stochUrdf = common_paths.stochUrdfFile
 
@@ -17,7 +16,6 @@ print("#########################################################################
 pb.setGravity(0,0,-10)
 planeId = pb.loadURDF("plane.urdf")
 stochID = pb.loadURDF(stochUrdf, [0,0,0.6])
-# stochID = pb.loadURDF(stochUrdf, [0,0,0.6], pb.getQuaternionFromEuler([0,0,math.pi/2]))
 
 stoch.printJointInfo(stochID)
 
@@ -40,12 +38,13 @@ liftPointMatrix, groundPointMatrix = stoch.generateWalkPointMatrices(xCentral, z
 time.sleep(1)
 
 stoch.takePosition(stochID, transitionLiftPointMatrix, transitionGroundPointMatrix, transition2 = True)
+tilt = stoch.degree2Radians(20)
 
 while True:
     for i in range(180):
         basePos, baseOrn = pb.getBasePositionAndOrientation(stochID)
         pb.resetDebugVisualizerCamera(cameraDistance = 3, cameraYaw = 30, cameraPitch = -30, cameraTargetPosition = basePos)
-        stoch.trot(stochID, 2*i, liftPointMatrix, groundPointMatrix)
+        stoch.trot(stochID, tilt, 2*i, liftPointMatrix, groundPointMatrix)
 
 time.sleep(1)
 

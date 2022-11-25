@@ -10,8 +10,8 @@ import common_paths
 ############################################################################################################################
 # Constants
 
-# jointArray = [0,1,2,4,5,6,8,9,10,12,13,14] # for free stoch
-jointArray = [1,2,3,5,6,7,9,10,11,13,14,15] # for fixed stoch
+jointArray = [0,1,2,4,5,6,8,9,10,12,13,14] # for free stoch
+# jointArray = [1,2,3,5,6,7,9,10,11,13,14,15] # for fixed stoch
 linkArray = np.arange(0, 18, 1)
 
 # Leg link lengths
@@ -21,7 +21,7 @@ L2 = 0.2999 #shank
 
 # Offsets
 X_SHIFT = 0.27138
-Y_SHIFT = 0.22695 - 0.1254
+Y_SHIFT = 0.22695 - L_ABD # Shift due to link between abd_joint and hip_joint
 Z_SHIFT = 0.01422
 
 # Shift of Hip frames with respect to body frame
@@ -217,13 +217,7 @@ def getObservedFootCoordinates(stochID):
                         np.round(linkPositions[12] - linkPositions[0], 5), # Back left
                         np.round(linkPositions[16] - linkPositions[0], 5)] # Back Right
     # return foot_coordinates
-    return foot_coordinates[1] - FR_SHIFT
-
-# Testing for front left leg
-# def getCalculatedFootCoordinates(stochID, angles):
-#     foot_in_hip_frame = forwardKinematics(angles)
-#     foot_in_body_frame = foot_in_hip_frame + FL_SHIFT
-#     return foot_in_hip_frame, foot_in_body_frame
+    return foot_coordinates
 
 # Forward kinematics in XZ plane for theta 2 and theta 3
 def forwardKinematicsin_XZ_plane(angles):
@@ -235,24 +229,17 @@ def forwardKinematicsin_XZ_plane(angles):
 # Inverse kinematics for 2 dof leg
 def inverseKinmematics(endPositionInAbdFrame):
     delta = math.asin(L_ABD/np.sqrt(endPositionInAbdFrame[1]**2 + endPositionInAbdFrame[2]**2))
-    print("delta = ", radian2Degree(delta), "endPositionInAbdFrame = ", endPositionInAbdFrame)
     abdJoint = math.atan(endPositionInAbdFrame[1]/ abs(endPositionInAbdFrame[2])) + delta
     xDash = endPositionInAbdFrame[0]
     yDash = endPositionInAbdFrame[1] * math.cos(abdJoint) + endPositionInAbdFrame[2] * math.sin(abdJoint)
     zDash = - endPositionInAbdFrame[1] * math.sin(abdJoint) + endPositionInAbdFrame[2] * math.cos(abdJoint)
-    print("Dash = ", xDash, yDash, zDash)
-
-    ##########################################################################################
     x = -zDash
     y = xDash
-    print("x = ", x, "y = ", y)
     coskneeJoint = ((x**2 + y**2) - (L1**2 + L2**2))/ (2*L1*L2)
     kneeJoint = math.acos(limitValue(coskneeJoint))
     determinant = L1**2 + L2**2 + 2*L1*L2*math.cos(kneeJoint)
     sinHipJoint1 = (x * (L1 + L2*math.cos(kneeJoint)) + y * (L2*math.sin(kneeJoint)))/ determinant
-    # cosHipJoint1 = (xDash * (L2*math.sin(kneeJoint)) - zDash * (L1 + L2*math.cos(kneeJoint)))/ determinant
     sinHipJoint1 = limitValue(sinHipJoint1)
-    # cosHipJoint1 = limitValue(cosHipJoint1)
     hipJoint = math.asin(sinHipJoint1) - math.pi/2
     return [abdJoint, -hipJoint, -kneeJoint]
 
@@ -299,17 +286,17 @@ def generateWalkPointMatrices(xCentral, zCentral, upperWidth, lowerWidth, centra
                                 [xCentral - centralWidth/2 ,zCentral - depth]]).T
 
     return liftPointMatrix, groundPointMatrix
-
-
-def getPointForTrajectory(angle, liftPointMatrix, groundPointMatrix):
+    
+def getPointForTrajectory(angle, tilt, liftPointMatrix, groundPointMatrix):
     if angle == 360: angle = 0
     if int(angle) in range(0,180):
         t = angle/180
-        return liftPointMatrix @ cubicWeightMatrix @ np.array([t**3, t**2, t, 1])
+        curvePoint = liftPointMatrix @ cubicWeightMatrix @ np.array([t**3, t**2, t, 1])
     elif int(angle) in range(180,360):
         t = (angle - 180)/180
-        return groundPointMatrix @ cubicWeightMatrix @ np.array([t**3, t**2, t, 1])
-    
+        curvePoint = groundPointMatrix @ cubicWeightMatrix @ np.array([t**3, t**2, t, 1])
+    return [curvePoint[0]*math.cos(tilt), curvePoint[0]*math.sin(tilt), curvePoint[1]]
+
 def getPointForTransition(t, transitionLiftPointMatrix, transitionGroundPointMatrix):
     quadraticTrajectoryPoint = transitionLiftPointMatrix @ quadraticWeightMatrix @ np.array([t**2, t, 1])
     linearTrajectoryPoint = transitionGroundPointMatrix @ linearWeightMatrix @ np.array([t, 1])
@@ -320,12 +307,14 @@ def getPointForTransition(t, transitionLiftPointMatrix, transitionGroundPointMat
 
 def takePosition(stochID, transitionLiftPointMatrix, transitionGroundPointMatrix, transition2):
     quadraticTrajectoryPoint, linearTrajectoryPoint = getPointForTransition(0, transitionLiftPointMatrix, transitionGroundPointMatrix)
-    jointAnglesPhase = inverseKinmematics([quadraticTrajectoryPoint[0], 0, quadraticTrajectoryPoint[1]])
+    jointAnglesPhaseL = inverseKinmematics([quadraticTrajectoryPoint[0], -L_ABD, quadraticTrajectoryPoint[1]])
+    jointAnglesPhaseR = inverseKinmematics([quadraticTrajectoryPoint[0], -L_ABD, quadraticTrajectoryPoint[1]])
     # Get 
     for i in range(100):
         i = i/100
-        _jointAnglesPhase = [i*jointAnglesPhase[0], i*jointAnglesPhase[1], i*jointAnglesPhase[2]] 
-        _jointAngles =  _jointAnglesPhase + _jointAnglesPhase + _jointAnglesPhase + _jointAnglesPhase
+        _jointAnglesPhaseL = [i*jointAnglesPhaseL[0], i*jointAnglesPhaseL[1], i*jointAnglesPhaseL[2]]
+        _jointAnglesPhaseR = [i*jointAnglesPhaseR[0], i*jointAnglesPhaseR[1], i*jointAnglesPhaseR[2]]
+        _jointAngles =  _jointAnglesPhaseL + _jointAnglesPhaseR + _jointAnglesPhaseL + _jointAnglesPhaseR
         JointAngleControl(stochID, _jointAngles, enablePrint=0)
 
     # time.sleep(1)
@@ -334,20 +323,26 @@ def takePosition(stochID, transitionLiftPointMatrix, transitionGroundPointMatrix
         for i in range(100):
             i = i/100
             quadraticTrajectoryPoint, linearTrajectoryPoint = getPointForTransition(i, transitionLiftPointMatrix, transitionGroundPointMatrix)
-            jointAnglesPhase180 = inverseKinmematics([quadraticTrajectoryPoint[0], 0, quadraticTrajectoryPoint[1]])
-            jointAnglesPhase0 = inverseKinmematics([linearTrajectoryPoint[0], 0, linearTrajectoryPoint[1]])
-            _jointAngles =  jointAnglesPhase0 + jointAnglesPhase180 + jointAnglesPhase180 + jointAnglesPhase0
-            #                   FL                      FR                      BL                  BR
+            jointAnglesFL = inverseKinmematics([linearTrajectoryPoint[0], -L_ABD, linearTrajectoryPoint[1]])
+            jointAnglesBR = inverseKinmematics([linearTrajectoryPoint[0], -L_ABD, linearTrajectoryPoint[1]])
+            jointAnglesBL = inverseKinmematics([quadraticTrajectoryPoint[0], -L_ABD, quadraticTrajectoryPoint[1]])
+            jointAnglesFR = inverseKinmematics([quadraticTrajectoryPoint[0], -L_ABD, quadraticTrajectoryPoint[1]])
+            _jointAngles =  jointAnglesFL + jointAnglesFR + jointAnglesBL + jointAnglesBR
+                #                   FL              FR                 BL             BR
             JointAngleControl(stochID, _jointAngles, enablePrint=0)
 
 
-def trot(stochID, i, liftPointMatrix, groundPointMatrix):
+def trot(stochID, tilt, i, liftPointMatrix, groundPointMatrix):
     if i in range(0,180): j = i + 180
     elif i in range(180, 360): j = i - 180
-    phase0 = getPointForTrajectory(i, liftPointMatrix, groundPointMatrix)
-    phase180 = getPointForTrajectory(j, liftPointMatrix, groundPointMatrix)
-    jointAnglesPhase0 = inverseKinmematics([phase0[0], 0, phase0[1]])
-    jointAnglesPhase180 = inverseKinmematics([phase180[0], 0, phase180[1]])
-    _jointAngles =  jointAnglesPhase0 + jointAnglesPhase180 + jointAnglesPhase180 + jointAnglesPhase0
-    #                   FL                      FR                      BL                  BR
+    phase0_F = getPointForTrajectory(i, tilt, liftPointMatrix, groundPointMatrix)
+    phase180_F = getPointForTrajectory(j, tilt, liftPointMatrix, groundPointMatrix)
+    phase0_B = getPointForTrajectory(i, -tilt, liftPointMatrix, groundPointMatrix)
+    phase180_B = getPointForTrajectory(j, -tilt, liftPointMatrix, groundPointMatrix)
+    jointAnglesFL = inverseKinmematics([phase0_F[0], phase0_F[1]-L_ABD, phase0_F[2]])
+    jointAnglesBR = inverseKinmematics([phase0_B[0], phase0_F[1]-L_ABD, phase0_B[2]])
+    jointAnglesBL = inverseKinmematics([phase180_B[0], phase0_F[1]-L_ABD, phase180_B[2]])
+    jointAnglesFR = inverseKinmematics([phase180_F[0], phase0_F[1]-L_ABD, phase180_F[2]])
+    _jointAngles =  jointAnglesFL + jointAnglesFR + jointAnglesBL + jointAnglesBR
+    #                   FL              FR                 BL             BR
     JointAngleControl(stochID, _jointAngles, enablePrint=0)

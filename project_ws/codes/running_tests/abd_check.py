@@ -38,8 +38,11 @@ transitionLiftPointMatrix, transitionGroundPointMatrix = stoch.generateTransitio
 liftPointMatrix, groundPointMatrix = stoch.generateWalkPointMatrices(xCentral, zCentral, upperWidth, lowerWidth, centralWidth, liftHeight, groundHeight, depth)
 
 input()
-angles = [-45,45,-45]   # knee joint only takes negative angles
+angles = [-70,70,-70]   # knee joint only takes negative angles
+stoch.JointAngleControl_FL(stochID, stoch.degree2Radians(np.array(angles)), enablePrint = 0) # requires degrees
 stoch.JointAngleControl_FR(stochID, stoch.degree2Radians(np.array(angles)), enablePrint = 0) # requires degrees
+stoch.JointAngleControl_BL(stochID, stoch.degree2Radians(np.array(angles)), enablePrint = 0) # requires degrees
+stoch.JointAngleControl_BR(stochID, stoch.degree2Radians(np.array(angles)), enablePrint = 0) # requires degrees
 time.sleep(1)
 input()
 endCoords = stoch.getObservedFootCoordinates(stochID)
@@ -48,7 +51,10 @@ print(  "endCoords = ", endCoords,
         "\nangles given = ", angles,
         "\tjointAngles = ", stoch.radian2Degree(np.array(jointAngles)))
 input()
+stoch.JointAngleControl_FL(stochID, jointAngles, enablePrint = 0)
 stoch.JointAngleControl_FR(stochID, jointAngles, enablePrint = 0)
+stoch.JointAngleControl_BL(stochID, jointAngles, enablePrint = 0)
+stoch.JointAngleControl_BR(stochID, jointAngles, enablePrint = 0)
 input()
 
 print("#################################################################################################")
