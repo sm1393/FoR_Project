@@ -289,13 +289,28 @@ def generateWalkPointMatrices(xCentral, zCentral, upperWidth, lowerWidth, centra
     return liftPointMatrix, groundPointMatrix
 
 
+# def getPointForTrajectory(angle, liftPointMatrix, groundPointMatrix):
+#     if angle == 360: angle = 0
+#     if int(angle) in range(0,180):
+#         t = angle/180
+#         return liftPointMatrix @ cubicWeightMatrix @ np.array([t**3, t**2, t, 1])
+#     elif int(angle) in range(180,360):
+#         t = (angle - 180)/180
+#         return groundPointMatrix @ cubicWeightMatrix @ np.array([t**3, t**2, t, 1])
+
 def getPointForTrajectory(angle, liftPointMatrix, groundPointMatrix):
     if angle == 360: angle = 0
-    if int(angle) in range(0,180):
-        t = angle/180
+    if int(angle) in range(0,90):
+        t = angle/90
         return liftPointMatrix @ cubicWeightMatrix @ np.array([t**3, t**2, t, 1])
-    elif int(angle) in range(180,360):
-        t = (angle - 180)/180
+    elif int(angle) in range(90,180):
+        t = 0.3333333333*((angle - 90)/90)
+        return groundPointMatrix @ cubicWeightMatrix @ np.array([t**3, t**2, t, 1])
+    elif int(angle) in range(180,270):
+        t = 0.3333333333*((angle - 90)/90)
+        return groundPointMatrix @ cubicWeightMatrix @ np.array([t**3, t**2, t, 1])
+    elif int(angle) in range(270,360):
+        t = 0.3333333333*((angle - 90)/90)
         return groundPointMatrix @ cubicWeightMatrix @ np.array([t**3, t**2, t, 1])
     
 def getPointForTransition(t, transitionLiftPointMatrix, transitionGroundPointMatrix):
@@ -316,8 +331,8 @@ def takePosition(stochID, transitionLiftPointMatrix, transitionGroundPointMatrix
         _jointAngles =  _jointAnglesPhase + _jointAnglesPhase + _jointAnglesPhase + _jointAnglesPhase
         JointAngleControl(stochID, _jointAngles, enablePrint=0)
 
-    # time.sleep(1)
-    # Set
+    time.sleep(1)
+    #Set
     if transition2:
         for i in range(100):
             i = i/100
@@ -329,13 +344,93 @@ def takePosition(stochID, transitionLiftPointMatrix, transitionGroundPointMatrix
             JointAngleControl(stochID, _jointAngles, enablePrint=0)
 
 
-def trot(stochID, i, liftPointMatrix, groundPointMatrix):
-    if i in range(0,180): j = i + 180
-    elif i in range(180, 360): j = i - 180
+# def trot(stochID, i, liftPointMatrix, groundPointMatrix):
+#     if i in range(0,180): j = i + 180
+#     elif i in range(180, 360): j = i - 180
+#     phase0 = getPointForTrajectory(i, liftPointMatrix, groundPointMatrix)
+#     phase180 = getPointForTrajectory(j, liftPointMatrix, groundPointMatrix)
+#     jointAnglesPhase0 = inverseKinmematics([phase0[0], 0, phase0[1]])
+#     jointAnglesPhase180 = inverseKinmematics([phase180[0], 0, phase180[1]])
+#     _jointAngles =  jointAnglesPhase0 + jointAnglesPhase180 + jointAnglesPhase180 + jointAnglesPhase0
+#     #                   FL                      FR                      BL                  BR
+#     JointAngleControl(stochID, _jointAngles, enablePrint=0)
+
+
+###################################################################################################3333333
+
+def creep(stochID, z, liftPointMatrix, groundPointMatrix):
+    if z in range(0,90):
+        i = z
+        j = z + 90
+        k = z + 180
+        l = z + 270
+    elif z in range(90,180):
+        i = z
+        j = z + 90
+        k = z + 180
+        l = z - 90
+    elif z in range(180,270):
+        i = z
+        j = z + 90
+        k = z - 180
+        l = z - 90
+    elif z in range(270,360):
+        i = z
+        j = z - 270
+        k = z - 180
+        l = z - 90
     phase0 = getPointForTrajectory(i, liftPointMatrix, groundPointMatrix)
-    phase180 = getPointForTrajectory(j, liftPointMatrix, groundPointMatrix)
+    phase270 = getPointForTrajectory(k, liftPointMatrix, groundPointMatrix)
+    phase180 = getPointForTrajectory(l, liftPointMatrix, groundPointMatrix)
+    phase90 = getPointForTrajectory(j, liftPointMatrix, groundPointMatrix)
     jointAnglesPhase0 = inverseKinmematics([phase0[0], 0, phase0[1]])
+    jointAnglesPhase90 = inverseKinmematics([phase90[0], 0, phase90[1]])
     jointAnglesPhase180 = inverseKinmematics([phase180[0], 0, phase180[1]])
-    _jointAngles =  jointAnglesPhase0 + jointAnglesPhase180 + jointAnglesPhase180 + jointAnglesPhase0
+    jointAnglesPhase270 = inverseKinmematics([phase270[0], 0, phase270[1]])
+
+    #_jointAngles =  jointAnglesPhase0 + jointAnglesPhase90 + jointAnglesPhase180 + jointAnglesPhase270
     #                   FL                      FR                      BL                  BR
+    _jointAngles =  jointAnglesPhase0 + jointAnglesPhase270  + jointAnglesPhase90 + jointAnglesPhase180
     JointAngleControl(stochID, _jointAngles, enablePrint=0)
+
+    
+
+
+
+
+
+
+
+# def creep(stochID, i, liftPointMatrix, groundPointMatrix):
+    # if i in range(0,180): 
+    #     if i in range(0,60): j = 180 + i 
+    #     if i in range(61,120): k = 180 + i - 60
+    #     if i in range(121,180): l = 180 + i - 120
+    # elif i in range(180,360): 
+    #     if i in range(180,240): j = i - 180 
+    #     if i in range(241,300): k = i - 240
+    #     if i in range(301,360): l = i - 300
+
+    # if i in range(0,90):
+    #     j = i + 90
+    #     k = i + 180 
+    #     l = i + 270
+    
+
+        
+
+    # if i in range(0,180): j = i + 180
+    # elif i in range(180, 360): j = i - 180
+    # phase0 = getPointForTrajectory(i, liftPointMatrix, groundPointMatrix)
+    # phase90 = getPointForTrajectory(j, liftPointMatrix, groundPointMatrix)
+    # phase180 = getPointForTrajectory(k, liftPointMatrix, groundPointMatrix)
+    # phase270 = getPointForTrajectory(l, liftPointMatrix, groundPointMatrix)
+    # jointAnglesPhase0 = inverseKinmematics([phase0[0], 0, phase0[1]])
+    # jointAnglesPhase90 = inverseKinmematics([phase90[0], 0, phase90[1]])
+    # jointAnglesPhase180 = inverseKinmematics([phase180[0], 0, phase180[1]])
+    # jointAnglesPhase270 = inverseKinmematics([phase270[0], 0, phase270[1]])
+    # _jointAngles =  jointAnglesPhase0 + jointAnglesPhase90 + jointAnglesPhase180 + jointAnglesPhase270
+    #                   FL                      FR                      BL                  BR
+    # _jointAngles =  jointAnglesPhase0 + jointAnglesPhase180 + jointAnglesPhase180 + jointAnglesPhase0
+#     #                   FL                      FR                      BL                  BR
+    # JointAngleControl(stochID, _jointAngles, enablePrint=0)
