@@ -412,3 +412,55 @@ def reachtarget(stochID, target, liftPointMatrix, groundPointMatrix):
     basePos, baseOrn = pb.getBasePositionAndOrientation(stochID)
     print("base = ", basePos, pb.getEulerFromQuaternion(baseOrn))
     input()
+
+def tracePath(stochID, path):
+    xCentral = 0
+    zCentral = 0
+    upperWidth = 0.04
+    lowerWidth = 0.02
+    centralWidth = 0.2
+    liftHeight = 0.09
+    groundHeight = 0
+    depth = 0.4
+
+    width = 0
+    Kp_tilt = 1
+    Kp_width = 0.005
+    pathIndex = 0
+    reached = False
+
+    path_traced = []
+
+    while True:
+        for i in range(180):
+            basePos, baseOrn = pb.getBasePositionAndOrientation(stochID)
+            # pb.resetDebugVisualizerCamera(cameraDistance = 15, cameraYaw = -90, cameraPitch = -85, cameraTargetPosition = [0,10,0])
+            pb.resetDebugVisualizerCamera(cameraDistance = 3, cameraYaw = -90, cameraPitch = -70, cameraTargetPosition = basePos)
+
+            position, orientation = pb.getBasePositionAndOrientation(stochID)
+            path_traced.append([position[0], position[1]])
+            eulerAngles = pb.getEulerFromQuaternion(orientation)
+            coordsInRobotFrame = transformWorldToRobot(position[0], position[1], eulerAngles[2], path[pathIndex])
+
+            # width += Kp_width * coordsInRobotFrame[0]
+            # width = np.clip(width, 0, np.sqrt((0.6111)**2 - depth**2))
+            width = 0.3
+            tilt = Kp_tilt * coordsInRobotFrame[1]
+
+            liftPointMatrix, groundPointMatrix = generateWalkPointMatrices(xCentral, zCentral, upperWidth, lowerWidth, width, liftHeight, groundHeight, depth)
+            trot(stochID, tilt, i*2, liftPointMatrix, groundPointMatrix)
+
+            print(pathIndex)
+            if np.sqrt(coordsInRobotFrame[0]**2 + coordsInRobotFrame[1]**2) < 0.5:
+                pathIndex += 1
+            if pathIndex > len(path)-1:
+                reached = True
+                break
+        if reached == True:
+            return np.array(path_traced)
+
+def transformWorldToRobot(x, y, theta, pointInWorld):
+    T = np.array([[math.cos(theta),  math.sin(theta),    - x*math.cos(theta) - y*math.sin(theta)]
+        ,[-math.sin(theta), math.cos(theta),    x*math.sin(theta) - y*math.cos(theta)]
+        ,[  0,   0,   1]])
+    return T @ np.array([pointInWorld[0], pointInWorld[1], 1])
