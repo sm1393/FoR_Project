@@ -337,8 +337,13 @@ def trot(stochID, tilt, i, liftPointMatrix, groundPointMatrix):
     elif i in range(180, 360): j = i - 180
     phase0_F = getPointForTrajectory(i, tilt, liftPointMatrix, groundPointMatrix)
     phase180_F = getPointForTrajectory(j, tilt, liftPointMatrix, groundPointMatrix)
-    phase0_B = getPointForTrajectory(i, -tilt, liftPointMatrix, groundPointMatrix)
-    phase180_B = getPointForTrajectory(j, -tilt, liftPointMatrix, groundPointMatrix)
+
+    # phase0_B = getPointForTrajectory(i, -tilt, liftPointMatrix, groundPointMatrix)
+    # phase180_B = getPointForTrajectory(j, -tilt, liftPointMatrix, groundPointMatrix)
+
+    phase0_B = getPointForTrajectory(i, 0, liftPointMatrix, groundPointMatrix)
+    phase180_B = getPointForTrajectory(j, 0, liftPointMatrix, groundPointMatrix)
+
     jointAnglesFL = inverseKinmematics([phase0_F[0], phase0_F[1]-L_ABD, phase0_F[2]])
     jointAnglesBR = inverseKinmematics([phase0_B[0], phase0_F[1]-L_ABD, phase0_B[2]])
     jointAnglesBL = inverseKinmematics([phase180_B[0], phase0_F[1]-L_ABD, phase180_B[2]])
@@ -354,10 +359,10 @@ def spot(stochID, direction, i, liftPointMatrix, groundPointMatrix): # direction
     phase180_F = getPointForTrajectory(j, - direction * math.pi + degree2Radians(45), liftPointMatrix, groundPointMatrix)
     phase0_B = getPointForTrajectory(i, direction * math.pi + degree2Radians(-45), liftPointMatrix, groundPointMatrix)
     phase180_B = getPointForTrajectory(j, direction * math.pi + degree2Radians(-135), liftPointMatrix, groundPointMatrix)
-    jointAnglesFL = inverseKinmematics([phase0_F[0], phase0_F[1]-L_ABD, phase0_F[2]])
-    jointAnglesBR = inverseKinmematics([phase0_B[0], phase0_F[1]-L_ABD, phase0_B[2]])
-    jointAnglesBL = inverseKinmematics([phase180_B[0], phase0_F[1]-L_ABD, phase180_B[2]])
-    jointAnglesFR = inverseKinmematics([phase180_F[0], phase0_F[1]-L_ABD, phase180_F[2]])
+    jointAnglesFL = inverseKinmematics([phase0_F[0], phase0_F[1]+L_ABD, phase0_F[2]])
+    jointAnglesBR = inverseKinmematics([phase0_B[0], phase0_B[1]-L_ABD, phase0_B[2]])
+    jointAnglesBL = inverseKinmematics([phase180_B[0], phase180_F[1]+L_ABD, phase180_B[2]])
+    jointAnglesFR = inverseKinmematics([phase180_F[0], phase180_B[1]-L_ABD, phase180_F[2]])
     _jointAngles =  jointAnglesFL + jointAnglesFR + jointAnglesBL + jointAnglesBR
     #                   FL              FR                 BL             BR
     JointAngleControl(stochID, _jointAngles, enablePrint=0)
@@ -423,9 +428,14 @@ def tracePath(stochID, path):
     groundHeight = 0
     depth = 0.4
 
+    # transitionLiftPointMatrix, transitionGroundPointMatrix = generateTransitionPointMatrices(xCentral, zCentral, upperWidth, lowerWidth, centralWidth, liftHeight, groundHeight, depth)
+    # liftPointMatrix, groundPointMatrix = generateWalkPointMatrices(xCentral, zCentral, upperWidth, lowerWidth, centralWidth, liftHeight, groundHeight, depth)
+
     width = 0
-    Kp_tilt = 1
+    Kp_tilt = 1.6 #2
+    Ki_tilt = 0.004
     Kp_width = 0.005
+    cum_error = 0
     pathIndex = 0
     reached = False
 
@@ -444,7 +454,9 @@ def tracePath(stochID, path):
 
             # width += Kp_width * coordsInRobotFrame[0]
             # width = np.clip(width, 0, np.sqrt((0.6111)**2 - depth**2))
-            width = 0.3
+            width = 0.225
+            cum_error += coordsInRobotFrame[1]
+            cum_error = np.clip(cum_error, -5000*math.pi/180, 5000*math.pi/180)
             tilt = Kp_tilt * coordsInRobotFrame[1]
 
             liftPointMatrix, groundPointMatrix = generateWalkPointMatrices(xCentral, zCentral, upperWidth, lowerWidth, width, liftHeight, groundHeight, depth)

@@ -17,8 +17,8 @@ print("#########################################################################
 
 pb.setGravity(0,0,-10)
 planeId = pb.loadURDF("plane.urdf")
-# stochID = pb.loadURDF(stochUrdf, [0,0,0.6], pb.getQuaternionFromEuler([0,0,6*math.pi/18]))
-stochID = pb.loadURDF(stochUrdf, [0,0,0.6])
+stochID = pb.loadURDF(stochUrdf, [0,0,0.6], pb.getQuaternionFromEuler([0,0,5*math.pi/18]))
+# stochID = pb.loadURDF(stochUrdf, [0,0,0.6])
 
 stoch.printJointInfo(stochID)
 
@@ -46,14 +46,14 @@ stoch.takePosition(stochID, transitionLiftPointMatrix, transitionGroundPointMatr
 # y = np.zeros((1000))
 
 # Circle
-r = 10
-x = [r*math.cos(math.pi*(i/10 - 90)/180) for i in range(3600)]
-y = [r*math.sin(math.pi*(i/10 - 90)/180)+10 for i in range(3600)]
+# r = 10
+# x = [r*math.cos(math.pi*(i/10 - 90)/180) for i in range(3600)]
+# y = [r*math.sin(math.pi*(i/10 - 90)/180)+10 for i in range(3600)]
 
 # Sin Wave
-# A = 5
-# x = np.array([i/10 for i in range(500)])
-# y = np.array([A*math.sin(0.05*math.pi*i) for i in x])
+A = 5
+x = np.array([i/10 for i in range(500)])
+y = np.array([A*math.sin(0.05*math.pi*i) for i in x])
 
 path = np.array([x,y]).T
 

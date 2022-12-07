@@ -43,7 +43,8 @@ tilt = stoch.degree2Radians(20)
 while True:
     for i in range(180):
         basePos, baseOrn = pb.getBasePositionAndOrientation(stochID)
-        pb.resetDebugVisualizerCamera(cameraDistance = 3, cameraYaw = 30, cameraPitch = -30, cameraTargetPosition = basePos)
+        pb.resetDebugVisualizerCamera(cameraDistance = 3, cameraYaw = 90, cameraPitch = -85, cameraTargetPosition = basePos)
+        # pb.resetDebugVisualizerCamera(cameraDistance = 3, cameraYaw = 30, cameraPitch = -30, cameraTargetPosition = basePos)
         stoch.trot(stochID, tilt, 2*i, liftPointMatrix, groundPointMatrix)
 
 time.sleep(1)
