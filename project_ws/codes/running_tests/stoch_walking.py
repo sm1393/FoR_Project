@@ -43,9 +43,9 @@ stoch.takePosition(stochID, transitionLiftPointMatrix, transitionGroundPointMatr
 
 while True:
     for i in range(180):
-        print(stoch.bodyTwist(stochID))
+        basePos, baseOrn = pb.getBasePositionAndOrientation(stochID) # Get model position
+        pb.resetDebugVisualizerCamera( cameraDistance=2, cameraYaw=30, cameraPitch=-30, cameraTargetPosition=basePos) # fix camera onto model
         stoch.trot(stochID, 2*i, liftPointMatrix, groundPointMatrix)
-        # input()
 
 time.sleep(1)
 
